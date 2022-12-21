@@ -165,10 +165,22 @@ class Buttons(discord.ui.View):
         
     async def interaction_check(self, interaction: discord.Interaction):
         return interaction.user.id == self.author.id
+    
+    async def on_timeout(self) -> None:
+        # Step 2
+        for item in self.children:
+            item.disabled = True
+
+        # Step 3
+        await self.message.edit(view=self)
         
     @discord.ui.button(label="Raffle Plus", style=discord.ButtonStyle.green)
     async def raffleplus(self, interaction: discord.Interaction, button: discord.ui.Button):
         #await interaction.response.edit_message(view=Rolling())
+        await interaction.response.defer()
+        for child in self.children:
+            Buttons.remove_item(self,child)
+        await interaction.edit_original_response(view=self)
         member = interaction.user
         user = userDB.find_one({"id":member.id})
         
@@ -324,9 +336,9 @@ class Buttons(discord.ui.View):
                 for child in self.children:
                     Buttons.remove_item(self,child)
                     
-                chl = self.bot.get_channel(config.LOG_ID)
-                await chl.send(f"**/acraffleplus** - User: **{interaction.user.name}** - Server: {interaction.guild} - Character: {Char['name']} - Show: {Char['show']} - Rarity: {Char['rarity']}")
-                await interaction.response.edit_message(embed=em, view=self)
+                chl = self.bot.get_channel(config.ACR_LOG_ID)
+                await chl.send(f"**/acraffleplus** - User: **{interaction.user.name}** - Server: **{interaction.guild}** - Character: **{Char['name']}** - Show: {Char['show']} - Rarity: {Char['rarity']}")
+                await interaction.edit_original_response(embed=em)
         
                 
         
@@ -347,7 +359,7 @@ async def send_logs_newuser(self, member, server):
         pass
     return
 
-async def createuser(member,guild):
+async def createuser(member,guild,bot):
         data = userDB.find_one({"id":member.id})
         if data is None:
             # guildid = guild.id
@@ -357,6 +369,10 @@ async def createuser(member,guild):
             userDB.update_one({"id":member.id}, {"$set":{"favorites": [] }})
         
             # await addUniqueUser()
+            chl = bot.get_channel(config.NEW_USER_LOG_ID)
+            await chl.send(f"**New User!** - User: **{member.name}** - Server: **{guild}**")
+            
+                
             return
         else:
             if data["name"] == member.name:
@@ -501,6 +517,7 @@ class ACRP(commands.Cog):
         
     #Test Command
     @app_commands.command(name="acrp",description="ACraffleplus - Roll for a Rare, Epic, or Legendary character! - Random Cooldown")
+    @app_commands.checks.cooldown(1,10,key=lambda i: (i.user.id))
     async def acrp(self,interaction: discord.Interaction):
         # await interaction.response.send_message(view=Buttons())
         #print('here1')
@@ -517,7 +534,7 @@ class ACRP(commands.Cog):
         user = userDB.find_one({"id":member.id})
         # print(user)
         
-        await createuser(member, guild)
+        await createuser(member, guild,self.bot)
         #print(1)
         await createshopuser(member,guild)
         #print(2)
@@ -603,6 +620,7 @@ class ACRP(commands.Cog):
         view = Buttons(interaction.user,self.bot)
         await interaction.response.send_message(embed=em, view=view)
         view.message = await interaction.original_response()
+        
 
        
             

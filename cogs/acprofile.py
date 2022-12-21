@@ -24,6 +24,16 @@ achDB = cluster["acrafflebot"]["achievements"]
 sznDB = cluster["acrafflebot"]["seasons"]
 sznWinDB = cluster["acrafflebot"]["sznwinners"]  
 
+
+CCcharDB = cluster["acraffleCartoon"]["characters"]
+CCuserDB = cluster["acraffleCartoon"]["users"]
+CCshopDB = cluster["acraffleCartoon"]["usershops"]
+CCshowDB = cluster["acraffleCartoon"]["shows"]
+CCpresDB = cluster["acraffleCartoon"]["userprestige"]
+CCloadingScreenDB = cluster["acraffleCartoon"]["loadingscreens"]
+# voteDB = cluster["acrafflebot"]["uservotes"]
+# moneyDB = cluster["acrafflebot"]["usershops"]
+
 def getColor(rarity):
     if rarity == "common":
         color = discord.Color.default()
@@ -619,6 +629,9 @@ class ACPROF(commands.Cog):
         
     @app_commands.command(name='acprofile', description='Profile Displaying Favorite Characters and Stats')
     async def acprofile(self,interaction: discord.Interaction, user: discord.User):
+        await interaction.response.defer()
+        
+        # await interaction.edit_original_response(view=self)
         member = user
         favorites = []
         #commandUser = ctx.author
@@ -627,7 +640,7 @@ class ACPROF(commands.Cog):
         if botStats['botOffline']==True:
             em = discord.Embed(title = f"ACprofile - {member.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
-            await interaction.response.send_message(embed=em)
+            await interaction.edit_original_response(embed=em)
             return
         
         await createuser(member, guild)
@@ -641,7 +654,7 @@ class ACPROF(commands.Cog):
         usermoney = moneyProf["money"]
 
         # em = discord.Embed(title = f"ACprofile - {member.name}\nLoading...",color = getColor("botColor"))
-        # em.set_thumbnail(url = member.avatar_url)
+        # em.set_thumbnail(url = member.avatar)
         # message = await ctx.send(embed = em)
         hasmal = True
         hasanilist = True
@@ -673,6 +686,8 @@ class ACPROF(commands.Cog):
         gifList = []
         for x in userfavorites:
             char = charDB.find_one({"name":x["name"]})
+            if char == None:
+                char = CCcharDB.find_one({"name":x["name"]})
             gifList.append(char["gif"])
 
         try:
@@ -696,11 +711,11 @@ class ACPROF(commands.Cog):
         except:
             totPres = 0
 
-        presRank = presDB.count_documents({"totPres": { "$gt" : totPres}}) + 1
-        totPresUsers = presDB.count_documents({"totPres": { "$gt" : 0}})
+        # presRank = presDB.count_documents({"totPres": { "$gt" : totPres}}) + 1
+        # totPresUsers = presDB.count_documents({"totPres": { "$gt" : 0}})
         
         botstat = botstatsDB.find_one({"id": 573})
-        uniqueuser = botstat["uniqueUser"]
+        # uniqueuser = botstat["uniqueUser"]
         totalChars = charDB.estimated_document_count()
 
         charFound = True
@@ -716,9 +731,9 @@ class ACPROF(commands.Cog):
                     currentchar = x['name']
                     break
             except:
-                em = discord.Embed(title = f"ACprofile",description=f"{member.name} does not have any characters unlocked!\nTo unlock a character to display on your profile do **!acr and !acrp**",color = getColor("botColor"))
+                em = discord.Embed(title = f"ACprofile",description=f"{member.name} does not have any characters unlocked!\nTo unlock a character to display on your profile do **/acr and /acrp**",color = getColor("botColor"))
                 em.set_thumbnail(url = member.avatar)
-                await interaction.response.send_message(embed=em)
+                await interaction.edit_original_response(embed=em)
                 return
 
 
@@ -744,17 +759,21 @@ class ACPROF(commands.Cog):
             color = getColor("common")
             
         char = charDB.find_one({"name":currentchar})
+        if char == None:
+            char = CCcharDB.find_one({"name":currentchar})
         charname=char["name"]
         chargif=char["gif"]
         charshow=char["show"]
         # charrarity=char["rarity"]
 
         show = showDB.find_one({"name":charshow})
+        if show == None:
+            show = CCshowDB.find_one({"name":charshow})
         showOutput = show["title"]
 
-        sznUser = sznDB.find_one({'id':member.id})
-        sznRank = sznDB.count_documents({"xp": { "$gt" : sznUser['xp']}}) + 1
-        totSzn = sznDB.count_documents({})
+        # sznUser = sznDB.find_one({'id':member.id})
+        # sznRank = sznDB.count_documents({"xp": { "$gt" : sznUser['xp']}}) + 1
+        # totSzn = sznDB.count_documents({})
         
         
         com=0
@@ -776,16 +795,16 @@ class ACPROF(commands.Cog):
         totlegs = charDB.count_documents({"rarity": "legendary"}) 
         tothypers = charDB.count_documents({"rarity": "hyperlegendary"}) 
  
-        sznPer = math.ceil(100 * (sznRank / totSzn))
+        # sznPer = math.ceil(100 * (sznRank / totSzn))
         
-        if sznPer <= 10:
-            rounded = round(sznPer/5)*5
-        else:
-            sznPer = sznPer - (sznPer % 10)
-            rounded = round(sznPer/10)*10
+        # if sznPer <= 10:
+        #     rounded = round(sznPer/5)*5
+        # else:
+        #     sznPer = sznPer - (sznPer % 10)
+        #     rounded = round(sznPer/10)*10
         
-        if rounded == 0:
-            rounded = 1
+        # if rounded == 0:
+        #     rounded = 1
 
         joinVar = ' - '
         
@@ -810,14 +829,14 @@ class ACPROF(commands.Cog):
             homeem.add_field(name=f"**Bio**",value=f"{userbio}", inline=False)
 
         if color == getColor("common") and charFound == True:
-            homeem.set_footer(text=f"Tip: Change profile color with !acpc")
+            homeem.set_footer(text=f"Tip: Change profile color with /acpc")
         if color == getColor("common") and charFound == False:
-            homeem.set_footer(text=f"Your profile is displaying the first character you unlocked.\nTo choose a different character you have unlocked use !acsc\nYou can also change your profile color with !acpc")
+            homeem.set_footer(text=f"Your profile is displaying the first character you unlocked.\nTo choose a different character you have unlocked use /acsc\nYou can also change your profile color with /acpc")
 
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url=chargif)
 
-        await interaction.response.send_message(embed=homeem)
+        await interaction.edit_original_response(embed=homeem)
        
     @app_commands.command(name='acprofilecharacter', description='Sets the character displayed on your profile')
     async def acprofilecharacter(self,interaction: discord.Interaction, character: str):
@@ -825,14 +844,17 @@ class ACPROF(commands.Cog):
         guild = interaction.guild
         await createuser(member, guild)
         if character is None:
-            em = discord.Embed(title = "ACsetcharacter",description=f"Sets a character that you have unlocked to appear on your /acprofile.\nUse /acbs *show* to see your unlocked characters.",color = discord.Color.teal())
+            em = discord.Embed(title = "ACprofilecharacter",description=f"Sets a character that you have unlocked to appear on your /acprofile.\nUse /acbs *show* to see your unlocked characters.",color = discord.Color.teal())
             await interaction.response.send_message(embed=em)
             return
         character = character.lower()
         charfound = charDB.find_one({"name":character})
         
         user = userDB.find_one({"id":member.id})
-        userChars = user['characters']
+        try:
+            userChars = user['characters']
+        except:
+            userChars = []
         for p in userChars:
             if p["name"] == character:
                 userDB.update_one({"id":member.id}, {"$set":{"currentchar":character}})
@@ -840,7 +862,7 @@ class ACPROF(commands.Cog):
                 gif = char["gif"]
                 show = char["show"]
                 rarity = char["rarity"]
-                em = discord.Embed(title = f"ACsetcharacter - {member.name}",description=f"Character: **{character.capitalize()}**\nShow: **{show.capitalize()}**\nRarity: **{rarity.capitalize()}**\n\n**Do /acprofile to check it out!**",color = getColor(rarity))
+                em = discord.Embed(title = f"ACprofilecharacter - {member.name}",description=f"Character: **{character.capitalize()}**\nShow: **{show.capitalize()}**\nRarity: **{rarity.capitalize()}**\n\n**Do /acprofile to check it out!**",color = getColor(rarity))
                 em.set_image(url=gif)
                 em.set_thumbnail(url=member.avatar)
                 await interaction.response.send_message(embed=em)
@@ -848,14 +870,41 @@ class ACPROF(commands.Cog):
                     achDB.update_one({"id":member.id}, {"$set":{"setEren":True}})
                 # await send_logs_profile_change(member, guild, "acsetcharacter",character)
                 return
+            
 
-        if charfound == None:
-            em = discord.Embed(title = "ACsetcharacter",description=f"{character.capitalize()} is not available.\nFor a list of characters in a show do **/acbs *show***",color = discord.Color.teal())
-            em.set_thumbnail(url=member.avatar)
-            await interaction.response.send_message(embed=em)
-            return
+        if charfound == None: 
+            charfound2 = CCcharDB.find_one({"name":character})
+            user = CCuserDB.find_one({"id":member.id})
+            try:
+                userChars = user['characters']
+            except:
+                userChars = []
+            for p in userChars:
+                if p["name"] == character:
+                    userDB.update_one({"id":member.id}, {"$set":{"currentchar":character}})
+                    char = CCcharDB.find_one({"name":character})
+                    gif = char["gif"]
+                    show = char["show"]
+                    rarity = char["rarity"]
+                    em = discord.Embed(title = f"ACprofilecharacter - {member.name}",description=f"Character: **{character.capitalize()}**\nShow: **{show.capitalize()}**\nRarity: **{rarity.capitalize()}**\n\n**Do /acprofile to check it out!**",color = getColor(rarity))
+                    em.set_image(url=gif)
+                    em.set_thumbnail(url=member.avatar)
+                    await interaction.response.send_message(embed=em)
+                    # await send_logs_profile_change(member, guild, "acsetcharacter",character)
+                    return
+            if charfound2 == None:
+                em = discord.Embed(title = "ACprofilecharacter",description=f"{character.capitalize()} is not available.\nFor a list of characters in a show do **/acbs *show***",color = discord.Color.teal())
+                em.set_thumbnail(url=member.avatar)
+                await interaction.response.send_message(embed=em)
+                return
+            else:
+                em = discord.Embed(title = "ACprofilecharacter",description=f"**{member.name}** hasn't unlocked **{character.capitalize()}**",color = discord.Color.teal())
+                em.set_thumbnail(url=member.avatar)
+                await interaction.response.send_message(embed=em)
+                return
+                
         else:
-            em = discord.Embed(title = "ACsetcharacter",description=f"**{member.name}** hasn't unlocked **{character.capitalize()}**",color = discord.Color.teal())
+            em = discord.Embed(title = "ACprofilecharacter",description=f"**{member.name}** hasn't unlocked **{character.capitalize()}**",color = discord.Color.teal())
             em.set_thumbnail(url=member.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -871,8 +920,8 @@ class ACPROF(commands.Cog):
         user = userDB.find_one({"id":member.id})
         shopStuff = shopDB.find_one({'id':member.id})
         if color == None:
-            em = discord.Embed(title = f"ACprofilecolor - {member.name}",description=f"**Allows you to change the color of your !acprofile.**\nChoose a listed color or enter a HEX code if you want a custom color!\n**Default Colors: Red, Blue, Green, Yellow, Purple.\nHEX Website: https://www.color-hex.com/ \nExample: !acpc red\nExample (HEX): !acpc b3346c\nPrice: ${botstat['colorprice']} - Your Balance: ${shopStuff['money']}**",color = discord.Color.teal())
-            em.set_thumbnail(url = member.avatar_url)
+            em = discord.Embed(title = f"ACprofilecolor - {member.name}",description=f"**Allows you to change the color of your /acprofile.**\nChoose a listed color or enter a HEX code if you want a custom color!\n**Default Colors: Red, Blue, Green, Yellow, Purple.\nHEX Website: https://www.color-hex.com/ \nExample: /acpc red\nExample (HEX): /acpc b3346c\nPrice: ${botstat['colorprice']} - Your Balance: ${shopStuff['money']}**",color = discord.Color.teal())
+            em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             return
 
@@ -1068,10 +1117,58 @@ class ACPROF(commands.Cog):
         character1Found = charDB.find_one({"name":character})
         
         if character1Found == None:
-            em = discord.Embed(title = "ACsetfavorite",description=f"Character, **{character.capitalize()}**, not found.\nFor a list of your unlocked characters do **/acbank**",color = discord.Color.teal())
-            em.set_thumbnail(url = member.avatar)
-            await interaction.response.send_message(embed=em)
-            return
+            character2Found = CCcharDB.find_one({"name":character})
+            if character2Found == None:
+                em = discord.Embed(title = "ACsetfavorite",description=f"Character, **{character.capitalize()}**, not found.\nFor a list of your unlocked characters do **/ccbank**",color = discord.Color.teal())
+                em.set_thumbnail(url = member.avatar)
+                await interaction.response.send_message(embed=em)
+                return
+            
+            user = userDB.find_one({"id":member.id})
+            CCuser = CCuserDB.find_one({"id":member.id})
+            userchars= CCuser["characters"]
+            haschar = False
+            
+            #userDB.update_one({"id":member.id}, {"$addToSet":{"favorites":{"name":"placeHolder"}}})
+            userFavorites = user["favorites"]
+            userfavlist = []
+            amountFavs = 0
+            for x in userFavorites:
+                userfavlist.append(x["name"])
+                amountFavs+=1
+                if character == x["name"]:
+                    em = discord.Embed(title = "ACsetfavorite",description=f"**{x['name'].capitalize()}** is already in your favorites.",color = discord.Color.teal())
+                    em.set_thumbnail(url=member.avatar)
+                    await interaction.response.send_message(embed=em)
+                    return
+
+
+            for x in userchars:
+                if x["name"] == character:
+                    haschar = True
+                else:
+                    continue
+
+            if haschar == False:
+                em = discord.Embed(title = "ACsetfavorite",description=f"**{member.name}** hasn't unlocked **{character.capitalize()}**",color = discord.Color.teal())
+                em.set_thumbnail(url=member.avatar)
+                await interaction.response.send_message(embed=em)
+                return
+            
+            if amountFavs >= 5:
+                em = discord.Embed(title = "ACsetfavorite",description=f"**{member.name}** already has 5 favorites, please use **/acprofileremove favorite** to remove a favorite, and then try again.",color = discord.Color.teal())
+                em.set_thumbnail(url=member.avatar)
+                await interaction.response.send_message(embed=em)
+                return
+            else:
+                userDB.update_one({"id":member.id}, {"$addToSet":{"favorites":{"name":character}}})
+                em = discord.Embed(title = "ACsetfavorite",description=f"**{character.capitalize()}** added to your favorites.",color = getColor("botColor"))
+                em.set_thumbnail(url=member.avatar)
+                em.set_image(url=character2Found['gif'])
+                await interaction.response.send_message(embed=em)
+                return
+    
+            
         
         user = userDB.find_one({"id":member.id})
         userchars= user["characters"]

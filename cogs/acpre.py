@@ -23,6 +23,14 @@ achDB = cluster["acrafflebot"]["achievements"]
 sznDB = cluster["acrafflebot"]["seasons"]
 sznWinDB = cluster["acrafflebot"]["sznwinners"]  
 
+# botstatsDB = cluster["acrafflebot"]["botstats"]
+CCcharDB = cluster["acraffleCartoon"]["characters"]
+CCuserDB = cluster["acraffleCartoon"]["users"]
+CCshopDB = cluster["acraffleCartoon"]["usershops"]
+CCshowDB = cluster["acraffleCartoon"]["shows"]
+CCpresDB = cluster["acraffleCartoon"]["userprestige"]
+CCloadingScreenDB = cluster["acraffleCartoon"]["loadingscreens"]
+
 def getColor(rarity):
     if rarity == "common":
         color = discord.Color.default()
@@ -59,11 +67,26 @@ class ACPRE(commands.Cog):
         
         character=character.lower()
         characterFound = charDB.find_one({"name":character})
+        usersWithChar = userDB.count_documents({"characters":{"$elemMatch": {"name":character}}})
+        
         if characterFound == None:
-            em = discord.Embed(title = "ACpreview",description=f"Character, **{character.capitalize()}**, not found.\nFor a list of characters you can trade do **/acbankshow *show***",color = discord.Color.teal())
-            em.set_thumbnail(url = member.avatar)
-            await interaction.response.send_message(embed=em)
-            return
+            characterFound2 = CCcharDB.find_one({"name":character})
+            if characterFound2 == None:
+                em = discord.Embed(title = "ACpreview",description=f"Character, **{character.capitalize()}**, not found.\nFor a list of characters you can trade do **/acbankshow *show***",color = discord.Color.teal())
+                em.set_thumbnail(url = member.avatar)
+                await interaction.response.send_message(embed=em)
+                return
+            usersWithChar = CCuserDB.count_documents({"characters":{"$elemMatch": {"name":character}}})
+            charname = characterFound2["name"]
+            show = CCshowDB.find_one({"name":characterFound2["show"]})
+            rarity = characterFound2["rarity"]
+            gif = characterFound2["gif"]
+        else:
+            charname = characterFound["name"]
+            show = showDB.find_one({"name":characterFound["show"]})
+            rarity = characterFound["rarity"]
+            gif = characterFound["gif"]
+                
     
         hasChar = userDB.find_one({'id':member.id},{"characters":{"$elemMatch": {"name":character}}})
         owned = '❌'
@@ -72,20 +95,26 @@ class ACPRE(commands.Cog):
             owned = '✅'
         except:
             owned = '❌'
+            
+        hasChar = CCuserDB.find_one({'id':member.id},{"characters":{"$elemMatch": {"name":character}}})
+        owned = '❌'
+        try:
+            chList = hasChar['characters']
+            owned = '✅'
+        except:
+            owned = '❌'
 
 
-        usersWithChar = userDB.count_documents({"characters":{"$elemMatch": {"name":character}}})
-    
-        charname = characterFound["name"]
-        show = showDB.find_one({"name":characterFound["show"]})
-        rarity = characterFound["rarity"]
-        gif = characterFound["gif"]
+        
         if usersWithChar == 1:
             em = discord.Embed(title = f"ACpreview - {member.name}" ,description= f"**Name:** {charname.capitalize()} {owned}\n**Show:** {show['title']}\n**Rarity:** {rarity.capitalize()}\n**Stats**: {usersWithChar} person has {charname.capitalize()} unlocked",color = getColor(rarity))
             
         else:
             em = discord.Embed(title = f"ACpreview - {member.name}" ,description= f"**Name:** {charname.capitalize()} {owned}\n**Show:** {show['title']}\n**Rarity:** {rarity.capitalize()}\n**Stats**: {usersWithChar} people have {charname.capitalize()} unlocked",color = getColor(rarity))
         
+        chl = self.bot.get_channel(config.PREVIEW_LOG_ID)
+        await chl.send(f"**/acpreview** - User: **{interaction.user.name}** - Server: **{interaction.guild}** - Character: **{charname}** - Show: {show['title']} - Rarity: {rarity}")
+       
         em.set_image(url=gif)
         em.set_thumbnail(url=member.avatar)
         # await send_logs_preview(member,guild,character)

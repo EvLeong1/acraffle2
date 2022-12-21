@@ -12,18 +12,16 @@ import datetime
 
 cluster = pymongo.MongoClient(config.MONGOTOKEN)
 
-charDB = cluster["acrafflebot"]["characters"]
-userDB = cluster["acrafflebot"]["users"]
 botstatsDB = cluster["acrafflebot"]["botstats"]
-showDB = cluster["acrafflebot"]["shows"]
-loadingScreenDB = cluster["acrafflebot"]["loadingscreens"]
-shopDB = cluster["acrafflebot"]["usershops"]
+
+charDB = cluster["acraffleCartoon"]["characters"]
+userDB = cluster["acraffleCartoon"]["users"]
+shopDB = cluster["acraffleCartoon"]["usershops"]
+showDB = cluster["acraffleCartoon"]["shows"]
+presDB = cluster["acraffleCartoon"]["userprestige"]
+loadingScreenDB = cluster["acraffleCartoon"]["loadingscreens"]
 voteDB = cluster["acrafflebot"]["uservotes"]
-blockDB = cluster["acrafflebot"]["blocks"]
-presDB = cluster["acrafflebot"]["userprestige"]
-achDB = cluster["acrafflebot"]["achievements"]
-sznDB = cluster["acrafflebot"]["seasons"]
-sznWinDB = cluster["acrafflebot"]["sznwinners"]  
+moneyDB = cluster["acrafflebot"]["usershops"]  
 
 
 def updateHyperLeg(member):
@@ -53,18 +51,18 @@ async def createuser(member,guild):
             userDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
             return
         
-async def createachuser(member):
-    data = achDB.find_one({"id":member.id})
-    if data is None:
-        newuser = {"id": member.id,"name":member.name,"votes":0, "trades":0}
-        achDB.insert_one(newuser)
-        return
-    else:
-        if data["name"] == member.name:
-            return
-        else:
-            achDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
-            return
+# async def createachuser(member):
+#     data = achDB.find_one({"id":member.id})
+#     if data is None:
+#         newuser = {"id": member.id,"name":member.name,"votes":0, "trades":0}
+#         achDB.insert_one(newuser)
+#         return
+#     else:
+#         if data["name"] == member.name:
+#             return
+#         else:
+#             achDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
+#             return
 
 def getColor(rarity):
     if rarity == "common":
@@ -98,7 +96,7 @@ class Buttons(discord.ui.View):
         
     async def on_timeout(self) -> None:
         # Step 2
-        em = discord.Embed(title = "ACtrade",description=f"**Trade Canceled!**\n{self.author.name} did not respond within 20 seconds.",color = discord.Color.red())
+        em = discord.Embed(title = "CCtrade",description=f"**Trade Canceled!**\n{self.author.name} did not respond within 20 seconds.",color = discord.Color.red())
         em.set_thumbnail(url=self.author.avatar)
         for item in self.children:
             Buttons.remove_item(self,item)
@@ -118,7 +116,7 @@ class Buttons(discord.ui.View):
         check2 = userDB.find_one({"id":member.id, "characters":{"$elemMatch": {"name":characterRecieve}}})
         if check1 is None:
             blankcomp = []
-            em = discord.Embed(title = "ACtrade",description=f"**Trade Cancelled!**\n{commanduser.name} no longer has {characterGive.capitalize()} in their bank. This probably happened if one of you accepted a trade for the same character while this window was open.",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"**Trade Cancelled!**\n{commanduser.name} no longer has {characterGive.capitalize()} in their bank. This probably happened if one of you accepted a trade for the same character while this window was open.",color = discord.Color.teal())
             em.set_thumbnail(url = commanduser.avatar)
             for item in self.children:
                 Buttons.remove_item(self,item)
@@ -127,7 +125,7 @@ class Buttons(discord.ui.View):
         
         if check2 is None:
             blankcomp = []
-            em = discord.Embed(title = "ACtrade",description=f"**Trade Cancelled!**\n{member.name} no longer has {characterGive.capitalize()} in their bank. This probably happened if one of you accepted a trade for the same character while this window was open.",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"**Trade Cancelled!**\n{member.name} no longer has {characterGive.capitalize()} in their bank. This probably happened if one of you accepted a trade for the same character while this window was open.",color = discord.Color.teal())
             em.set_thumbnail(url = member.avatar)
             for item in self.children:
                 Buttons.remove_item(self,item)
@@ -256,36 +254,36 @@ class Buttons(discord.ui.View):
         updateHyperLeg(commanduser)
 
 
-        em = discord.Embed(title = f"ACtrade",description=f"Trade successful!",color = discord.Color.green())
+        em = discord.Embed(title = f"CCtrade",description=f"Trade successful!",color = discord.Color.green())
         em.add_field(name="Results:",value=f"{commanduser.name.capitalize()} got **{characterRecieve.capitalize()}** and {member.name.capitalize()} got **{characterGive.capitalize()}**")
         em.set_thumbnail(url = member.avatar)
 
         currenttime = datetime.datetime.utcnow()
-        achMem = achDB.find_one({'id':member.id})
-        achCom = achDB.find_one({'id':commanduser.id})
+        # achMem = achDB.find_one({'id':member.id})
+        # achCom = achDB.find_one({'id':commanduser.id})
 
 
-        try:
-            cooldownVal = achMem['tradecool']
-            secadded = datetime.timedelta(seconds=30)
-            futureTime = cooldownVal + secadded
-            if currenttime > futureTime:
-                achDB.update_one({"id":member.id}, {"$inc":{'trades':1}})
-                achDB.update_one({"id":member.id}, {"$set":{'tradecool':currenttime}}) 
-        except:
-            achDB.update_one({"id":member.id}, {"$inc":{'trades':1}})
-            achDB.update_one({"id":member.id}, {"$set":{'tradecool':currenttime}}) 
+        # try:
+        #     cooldownVal = achMem['tradecool']
+        #     secadded = datetime.timedelta(seconds=30)
+        #     futureTime = cooldownVal + secadded
+        #     if currenttime > futureTime:
+        #         achDB.update_one({"id":member.id}, {"$inc":{'trades':1}})
+        #         achDB.update_one({"id":member.id}, {"$set":{'tradecool':currenttime}}) 
+        # except:
+        #     achDB.update_one({"id":member.id}, {"$inc":{'trades':1}})
+        #     achDB.update_one({"id":member.id}, {"$set":{'tradecool':currenttime}}) 
         
-        try:
-            cooldownVal = achCom['tradecool']
-            secadded = datetime.timedelta(seconds=30)
-            futureTime = cooldownVal + secadded
-            if currenttime > futureTime:
-                achDB.update_one({"id":commanduser.id}, {"$inc":{'trades':1}})
-                achDB.update_one({"id":commanduser.id}, {"$set":{'tradecool':currenttime}}) 
-        except:
-            achDB.update_one({"id":commanduser.id}, {"$inc":{'trades':1}})
-            achDB.update_one({"id":commanduser.id}, {"$set":{'tradecool':currenttime}}) 
+        # try:
+        #     cooldownVal = achCom['tradecool']
+        #     secadded = datetime.timedelta(seconds=30)
+        #     futureTime = cooldownVal + secadded
+        #     if currenttime > futureTime:
+        #         achDB.update_one({"id":commanduser.id}, {"$inc":{'trades':1}})
+        #         achDB.update_one({"id":commanduser.id}, {"$set":{'tradecool':currenttime}}) 
+        # except:
+        #     achDB.update_one({"id":commanduser.id}, {"$inc":{'trades':1}})
+        #     achDB.update_one({"id":commanduser.id}, {"$set":{'tradecool':currenttime}}) 
 
 
         for child in self.children:
@@ -296,7 +294,7 @@ class Buttons(discord.ui.View):
     @discord.ui.button(label="Deny", style=discord.ButtonStyle.danger)
     async def denyTrade(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
-        em = discord.Embed(title = "ACtrade",description=f"Trade denied by {member.name}",color = discord.Color.red())
+        em = discord.Embed(title = "CCtrade",description=f"Trade denied by {member.name}",color = discord.Color.red())
         em.set_thumbnail(url = member.avatar)
         
         for child in self.children:
@@ -307,32 +305,32 @@ class Buttons(discord.ui.View):
         
         
         
-class ACTRADE(commands.Cog):
+class CCTRADE(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @commands.Cog.listener()
     async def on_ready(self):
-        print("ACTRADE Cog loaded!")
+        print("CCtrade Cog loaded!")
         
     
         
     
-    @app_commands.command(name='actrade', description='Trade another user for a character of the same rarity')
+    @app_commands.command(name='cctrade', description='Trade another user for a character of the same rarity')
     @app_commands.describe(user="Specify the user you want to trade with",
                            give="Character you give away",
                            want="Character you want to get")
-    async def actrade(self, interaction: discord.Interaction, user: discord.User, give: str, want: str):
+    async def cctrade(self, interaction: discord.Interaction, user: discord.User, give: str, want: str):
         commanduser = interaction.user
         guild= interaction.guild
         botStats = botstatsDB.find_one({"id":573})
         if botStats['botOffline']==True:
-            em = discord.Embed(title = f"ACtrade - {commanduser.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = getColor('botColor'))
+            em = discord.Embed(title = f"CCtrade - {commanduser.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = getColor('botColor'))
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
             return
         
-        #await send_logs_actrade(commanduser, guild, "actrade",member,characterGive,characterRecieve)
+        #await send_logs_actrade(commanduser, guild, "CCtrade",member,characterGive,characterRecieve)
     
         characterGive=give.lower()
         characterRecieve=want.lower()
@@ -340,12 +338,12 @@ class ACTRADE(commands.Cog):
         member = user
         
         if member.id == commanduser.id:
-            em = discord.Embed(title = "ACtrade",description=f"Can't trade with yourself!!",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"Can't trade with yourself!!",color = discord.Color.teal())
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
             return
         if characterGive == characterRecieve:
-            em = discord.Embed(title = "ACtrade",description=f"Can't trade for the same character **{characterGive.capitalize()}**!",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"Can't trade for the same character **{characterGive.capitalize()}**!",color = discord.Color.teal())
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -355,13 +353,13 @@ class ACTRADE(commands.Cog):
         characterGivefound = charDB.find_one({"name":characterGive})
 
         if characterRecfound == None:
-            em = discord.Embed(title = "ACtrade",description=f"Character, **{characterRecieve.capitalize()}**, not found.\nFor a list of characters do **/acbank**",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"Character, **{characterRecieve.capitalize()}**, not found.\nFor a list of characters do **/ccbank**",color = discord.Color.teal())
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
             return
         
         if characterGivefound == None:
-            em = discord.Embed(title = "ACtrade",description=f"Character, **{characterGive.capitalize()}**, not found.\nFor a list of characters do **/acbank**",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"Character, **{characterGive.capitalize()}**, not found.\nFor a list of characters do **/ccbank**",color = discord.Color.teal())
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -371,8 +369,8 @@ class ACTRADE(commands.Cog):
         # guild = ctx.message.guild
         await createuser(commanduser,guild)
         await createuser(member,guild)
-        await createachuser(member)
-        await createachuser(commanduser)
+        # await createachuser(member)
+        # await createachuser(commanduser)
         
 
         userhasChar = userDB.find_one({"id":commanduser.id, "characters":{"$elemMatch": {"name":characterGive}}})
@@ -428,26 +426,26 @@ class ACTRADE(commands.Cog):
 
 
         if userhasChar is None:
-            em = discord.Embed(title = "ACtrade",description=f"{commanduser.name.capitalize()} doesn't have {characterGive.capitalize()} unlocked.",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"{commanduser.name.capitalize()} doesn't have {characterGive.capitalize()} unlocked.",color = discord.Color.teal())
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
             return
 
         if memberhasChar is None:
-            em = discord.Embed(title = "ACtrade",description=f"{member.name.capitalize()} doesn't have {characterRecieve.capitalize()} unlocked.",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"{member.name.capitalize()} doesn't have {characterRecieve.capitalize()} unlocked.",color = discord.Color.teal())
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             return
 
         if characterRecfound['rarity'] != characterGivefound['rarity']:
-            em = discord.Embed(title = "ACtrade",description=f"**{characterGive.capitalize()}** is not the same rarity as **{characterRecieve.capitalize()}**.",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"**{characterGive.capitalize()}** is not the same rarity as **{characterRecieve.capitalize()}**.",color = discord.Color.teal())
             em.add_field(name="You can only trade characters of the same rarity.",value=f"For example:\nCommon for Common")
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
             return
 
         if characterRecfound == "hyperlegendary" or characterGivefound == "hyperlegendary":
-            em = discord.Embed(title = "ACtrade",description=f"**Hyper Legendaries can't be traded**!",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"**Hyper Legendaries can't be traded**!",color = discord.Color.teal())
             # em.add_field(name="Trade Between:",value=f"{commanduser.name.capitalize()} and {member.name.capitalize()}")
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
@@ -475,7 +473,7 @@ class ACTRADE(commands.Cog):
                 rcp += 1
 
         if rcp == maxRar:
-            em = discord.Embed(title = "ACtrade",description=f"**{commanduser.name} has the max number of {charrecieverarity.capitalize()} characters. Please prestige at least 1 show in order to trade with this rarity",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"**{commanduser.name} has the max number of {charrecieverarity.capitalize()} characters. Please prestige at least 1 show in order to trade with this rarity",color = discord.Color.teal())
             # em.add_field(name="Trade Between:",value=f"{commanduser.name.capitalize()} and {member.name.capitalize()}")
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
@@ -486,7 +484,7 @@ class ACTRADE(commands.Cog):
                 rcm += 1
 
         if rcm == maxRar:
-            em = discord.Embed(title = "ACtrade",description=f"**{member.name} has the max number of {charrecieverarity.capitalize()} characters. Please prestige at least 1 show in order to trade with this rarity",color = discord.Color.teal())
+            em = discord.Embed(title = "CCtrade",description=f"**{member.name} has the max number of {charrecieverarity.capitalize()} characters. Please prestige at least 1 show in order to trade with this rarity",color = discord.Color.teal())
             # em.add_field(name="Trade Between:",value=f"{commanduser.name.capitalize()} and {member.name.capitalize()}")
             em.set_thumbnail(url = commanduser.avatar)
             await interaction.response.send_message(embed=em)
@@ -494,7 +492,7 @@ class ACTRADE(commands.Cog):
         
 
         acceptPage = discord.Embed (
-            title = f"ACtrade\nRarity: {charrecieverarity.capitalize()}",
+            title = f"CCtrade\nRarity: {charrecieverarity.capitalize()}",
             description = f"**{commanduser.name.capitalize()}** gets **{characterRecieve.capitalize()}**\n**{member.name.capitalize()}** gets **{characterGive.capitalize()}**\n\n{member.name.capitalize()} press accept to confirm the trade!\nYou have 20 seconds.",
             colour = getColor(charrecieverarity)
         )
@@ -503,8 +501,6 @@ class ACTRADE(commands.Cog):
         
 
         # message = await ctx.send(embed = acceptPage,components=buttons)
-        chl = self.bot.get_channel(config.ACR_LOG_ID)
-        await chl.send(f"**/actrade** - User: **{commanduser.name}** - Member: **{member.name}** - CharGive: **{characterGive}** - CharReceive: **{characterRecieve}** - Guild: **{interaction.guild}**")
         
         view = Buttons(user,commanduser,characterGive,characterRecieve)
         await interaction.response.send_message(embed=acceptPage, view=view)
@@ -519,4 +515,4 @@ class ACTRADE(commands.Cog):
         
         
 async def setup(bot):
-    await bot.add_cog(ACTRADE(bot))
+    await bot.add_cog(CCTRADE(bot))

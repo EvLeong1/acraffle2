@@ -11,37 +11,27 @@ import datetime
 import random
 
 
-# client = pymongo.MongoClient("mongodb+srv://evanL:EvLardbag573@cluster0.ym2yg.mongodb.net/?retryWrites=true&w=majority")
-# acrdb = client.acrafflebot
-
 cluster = pymongo.MongoClient(config.MONGOTOKEN)
 
-charDB = cluster["acrafflebot"]["characters"]
-userDB = cluster["acrafflebot"]["users"]
 botstatsDB = cluster["acrafflebot"]["botstats"]
-showDB = cluster["acrafflebot"]["shows"]
-loadingScreenDB = cluster["acrafflebot"]["loadingscreens"]
-shopDB = cluster["acrafflebot"]["usershops"]
+
+charDB = cluster["acraffleCartoon"]["characters"]
+userDB = cluster["acraffleCartoon"]["users"]
+shopDB = cluster["acraffleCartoon"]["usershops"]
+showDB = cluster["acraffleCartoon"]["shows"]
+presDB = cluster["acraffleCartoon"]["userprestige"]
+loadingScreenDB = cluster["acraffleCartoon"]["loadingscreens"]
 voteDB = cluster["acrafflebot"]["uservotes"]
-blockDB = cluster["acrafflebot"]["blocks"]
-presDB = cluster["acrafflebot"]["userprestige"]
-achDB = cluster["acrafflebot"]["achievements"]
-sznDB = cluster["acrafflebot"]["seasons"]
-sznWinDB = cluster["acrafflebot"]["sznwinners"]  
+moneyDB = cluster["acrafflebot"]["usershops"]
 
-logChannelID = 865757247933251584
-banklogChannelID = 873120153498423366
-cooldownChannelID = 876653890605563904
-previewChannelID = 876654247423385630
-newUserChannelID = 876658814269661185
-shopChannelID = 879180765726912593
-profileChannelID = 881954966103801856
-loadingCannelID = 884247812936699905
-presChannelID = 919091316401528834
-wagerChannelID = 949486966930559066
+def setRandTime():
+    randseed = random.randint(1,1000)
+    random.seed(randseed)
+    randTime = random.randint(14400,21600)
+    return randTime
 
-rarities = ["common", "uncommon", "rare","epic","legendary"]
-chance = [52,32,10,5,1]
+acrpRarities = ["rare","epic","legendary"]
+acrpChance = [66,30,4]
 
 #chance =[100,0,0,0,0] #for testing
 #chance=[0,0,0,0,100] #for testing
@@ -137,7 +127,7 @@ def getColor(rarity):
     
 def addfundspres(member,level):
     botStats = botstatsDB.find_one({"id":573})
-    sznDB.update_one({"id":member.id}, {"$inc":{"xp":3 * level}})
+    # sznDB.update_one({"id":member.id}, {"$inc":{"xp":3 * level}})
     shopDB.update_one({"id":member.id}, {"$inc":{"money":level*botStats['presBonus']}})
     
     
@@ -167,30 +157,30 @@ class Buttons(discord.ui.View):
 
         # Step 3
         await self.message.edit(view=self)
-    
-    @discord.ui.button(label="Raffle", style=discord.ButtonStyle.green)
-    async def raffle(self, interaction: discord.Interaction, button: discord.ui.Button):
+        
+    @discord.ui.button(label="Raffle Plus", style=discord.ButtonStyle.green)
+    async def raffleplus(self, interaction: discord.Interaction, button: discord.ui.Button):
         #await interaction.response.edit_message(view=Rolling())
         await interaction.response.defer()
         for child in self.children:
             Buttons.remove_item(self,child)
         await interaction.edit_original_response(view=self)
-        
         member = interaction.user
         user = userDB.find_one({"id":member.id})
         
         currenttime = datetime.datetime.utcnow()
         botStats = botstatsDB.find_one({"id":573})
-       
+        
+        
+        hours_added = datetime.timedelta(seconds=setRandTime())
+        futureTime = currenttime + hours_added
+        
         # secondem = discord.Embed(title = f"ACraffle\nRolling character for {member.name}...",color = discord.Color.teal())
         # secondem.set_thumbnail(url = member.avatar)
         
         # await interaction.response.edit_message(embed=secondem, view=self)
-        
-        
-        
-        userDB.update_one({"id":member.id}, {"$set":{"acrCooldown":currenttime}})
-        result = random.choices(rarities,chance,k=1)
+        userDB.update_one({"id":member.id}, {"$set":{"acrpCooldown":futureTime}})
+        result = random.choices(acrpRarities,acrpChance,k=1)
         
         # await asyncio.sleep(2)
         
@@ -200,27 +190,24 @@ class Buttons(discord.ui.View):
             newuser = False
         except:
             pass
-        
-       
-       
-        
-        
-        duperate = int(botStats["duperate"])
-        for x in range(5):
-            if result[0] == rarities[x]:
-                max = charDB.count_documents({"rarity":rarities[x]})
-                randomInt = random.randint(1,max) 
-                Char = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                try:
-                    ublocks = blockDB.find_one({'id':member.id})
-                    blist = ublocks['blocklist']
-                    newblist = []
-                    for itm in blist:
-                        newblist.append(itm['show'])
-                except:
-                    newblist=[]
 
-                if rarities[x] == 'legendary':
+
+        duperate = int(botStats["duperate"])
+        for x in range(len(acrpRarities)):
+            if result[0] == acrpRarities[x]:
+                max = charDB.count_documents({"rarity":acrpRarities[x]})
+                randomInt = random.randint(1,max) 
+                Char = charDB.find_one({"rarity":acrpRarities[x], "raritynumber": randomInt})
+                # try:
+                #     ublocks = blockDB.find_one({'id':member.id})
+                #     blist = ublocks['blocklist']
+                #     newblist = []
+                #     for itm in blist:
+                #         newblist.append(itm['show'])
+                # except:
+                #     newblist=[]
+
+                if acrpRarities[x] == 'legendary':
                     legmax = charDB.count_documents({"rarity":"legendary"})
                     legsun = user['legendsunlocked'] 
                     if legmax != legsun:
@@ -228,23 +215,23 @@ class Buttons(discord.ui.View):
                             if checkDupes(member,Char["name"]) == "Duplicate":
                                 random.seed(random.randint(1,5000000))
                                 randomInt = random.randint(1,max) 
-                                Char = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                            if Char['show'] in newblist:
-                                random.seed(random.randint(1,5000000))
-                                randomInt = random.randint(1,max) 
-                                Char = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                                Char = charDB.find_one({"rarity":acrpRarities[x], "raritynumber": randomInt})
+                            # if Char['show'] in newblist:
+                            #     random.seed(random.randint(1,5000000))
+                            #     randomInt = random.randint(1,max) 
+                            #     Char = charDB.find_one({"rarity":acrpRarities[x], "raritynumber": randomInt})
                 else:
                     for y in range(duperate):
                         if checkDupes(member,Char["name"]) == "Duplicate":
                             random.seed(random.randint(1,5000000))
                             randomInt = random.randint(1,max) 
-                            Char = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        if Char['show'] in newblist:
-                            random.seed(random.randint(1,5000000))
-                            randomInt = random.randint(1,max) 
-                            Char = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        else:
-                            break
+                            Char = charDB.find_one({"rarity":acrpRarities[x], "raritynumber": randomInt})
+                        # if Char['show'] in newblist:
+                        #     random.seed(random.randint(1,5000000))
+                        #     randomInt = random.randint(1,max) 
+                        #     Char = charDB.find_one({"rarity":acrpRarities[x], "raritynumber": randomInt})
+                        # else:
+                        #     break
 
                 isDupe = checkDupes(member,Char["name"])
                 showFound = showDB.find_one({"name":Char["show"]})
@@ -270,12 +257,19 @@ class Buttons(discord.ui.View):
                             level = shw['tier']
                             break
 
+                
+                # try:
+                #     await send_logs_acraffle_more(member, guild, "acraffle",Char["name"], isDupe,Char["rarity"])
+                # except:
+                #     pass
+                
                 userDB.update_one({"id":member.id}, {"$addToSet":{"characters":{"name":Char["name"],"show":Char["show"],"rarity":Char["rarity"]}}})
 
                 updateLegendaryandEpic(member)
                 updateCharsAmount(member)
                 
-                addfunds(member,botStats["amountacr"])      #base acr value 
+                addfunds(member,botStats["amountacrp"])      #base acrp value 
+                
                 if isDupe == "Duplicate" and level == 0:    #duplicate no pres  
                     addfundsdupe(member, Char['rarity'])
                 elif isDupe == "Duplicate" and level != 0:  #duplicate and pres
@@ -285,20 +279,20 @@ class Buttons(discord.ui.View):
                     addfundspres(member,level)
                     addfundsdupe(member, Char['rarity'])
                 
-                sznDB.update_one({"id":member.id}, {"$inc":{"xp":3}})
+                # sznDB.update_one({"id":member.id}, {"$inc":{"xp":3}})
                 
                 
                 if newuser == True:
-                    em = discord.Embed(title = f"ACraffle - {member.name} got {Char['name'].capitalize()}",color = getColor(Char['rarity']))
+                    em = discord.Embed(title = f"CCraffleplus - {member.name} got {Char['name'].capitalize()}",color = getColor(Char['rarity']))
                     em.add_field(name=f"**Details**",value=f"Show: **{showFound['title']}**\nRarity: **{Char['rarity'].capitalize()}**\n**{isDupe}**")
                     if isDupe == "Duplicate" and level == 0:
-                        em.add_field(name=f"**Money**",value=f"${botStats['amountacr']} for raffling\n${getpricedupe(Char['rarity'])} for duplicate")
+                        em.add_field(name=f"**Money**",value=f"${botStats['amountacrp']} for raffling\n${getpricedupe(Char['rarity'])} for duplicate")
                     elif isDupe == "Duplicate" and level != 0:
-                        em.add_field(name=f"**Money**",value=f"${botStats['amountacr']} for raffling\n${botStats['presBonus']*level + getpricedupe(Char['rarity'])} Prestige Bonus")
+                        em.add_field(name=f"**Money**",value=f"${botStats['amountacrp']} for raffling\n${botStats['presBonus']*level + getpricedupe(Char['rarity'])} Prestige Bonus")
                     elif isDupe != "Duplicate" and level != 0:
-                        em.add_field(name=f"**Money**",value=f"${botStats['amountacr']} for raffling\n${botStats['presBonus']*level + getpricedupe(Char['rarity'])} Prestige Bonus")
+                        em.add_field(name=f"**Money**",value=f"${botStats['amountacrp']} for raffling\n${botStats['presBonus']*level + getpricedupe(Char['rarity'])} Prestige Bonus")
                     else:
-                        em.add_field(name=f"**Money**",value=f"${botStats['amountacr']} for raffling\n3 SP")
+                        em.add_field(name=f"**Money**",value=f"${botStats['amountacrp']} for raffling")
                     em.add_field(name=f"**Thanks for using ACraffle!**",value=f"If you are new and want to get started use **/actutorial**",inline=False)
                     em.set_image(url=Char['gif'])
                     em.set_thumbnail(url = member.avatar)
@@ -307,31 +301,29 @@ class Buttons(discord.ui.View):
                     
                     
                 else:
-                    em = discord.Embed(title = f"ACraffle - {member.name} got {Char['name'].capitalize()}",color = getColor(Char['rarity']))
+                    em = discord.Embed(title = f"CCraffleplus - {member.name} got {Char['name'].capitalize()}",color = getColor(Char['rarity']))
                     em.add_field(name=f"**Details**",value=f"Show: **{showFound['title']}**\nRarity: **{Char['rarity'].capitalize()}**\n**{isDupe}**")
                     if isDupe == "Duplicate" and level == 0:
-                        em.add_field(name=f"**Money**",value=f"${botStats['amountacr']} for raffling\n${getpricedupe(Char['rarity'])} for duplicate")
+                        em.add_field(name=f"**Money**",value=f"${botStats['amountacrp']} for raffling\n${getpricedupe(Char['rarity'])} for duplicate")
                     elif isDupe == "Duplicate" and level != 0:
-                        em.add_field(name=f"**Money**",value=f"${botStats['amountacr']} for raffling\n${botStats['presBonus']*level + getpricedupe(Char['rarity'])} Prestige Bonus")
+                        em.add_field(name=f"**Money**",value=f"${botStats['amountacrp']} for raffling\n${botStats['presBonus']*level + getpricedupe(Char['rarity'])} Prestige Bonus")
                     elif isDupe != "Duplicate" and level != 0:
-                        em.add_field(name=f"**Money**",value=f"${botStats['amountacr']} for raffling\n${botStats['presBonus']*level + getpricedupe(Char['rarity'])} Prestige Bonus")
+                        em.add_field(name=f"**Money**",value=f"${botStats['amountacrp']} for raffling\n${botStats['presBonus']*level + getpricedupe(Char['rarity'])} Prestige Bonus")
                     else:
-                        em.add_field(name=f"**Money**",value=f"${botStats['amountacr']} for raffling")
+                        em.add_field(name=f"**Money**",value=f"${botStats['amountacrp']} for raffling")
                     em.set_image(url=Char['gif'])
                     em.set_thumbnail(url = member.avatar)
                     acraffleNote = botStats["acraffleNote"]
                     em.set_footer(text=f"{acraffleNote} - See /acan")
                 
                 
-                
+                # for child in self.children:
+                #     Buttons.remove_item(self,child)
                     
-                
                 chl = self.bot.get_channel(config.ACR_LOG_ID)
-                
-                await chl.send(f"**/acraffle** - User: **{interaction.user.name}** - Server: **{interaction.guild}** - Character: **{Char['name']}** - Show: {Char['show']} - Rarity: {Char['rarity']}")
-                # await interaction.response.edit_message(embed=em, view=self)
-                # await interaction.followup(embed=em, view=self)
+                await chl.send(f"**/CCraffleplus** - User: **{interaction.user.name}** - Server: **{interaction.guild}** - Character: **{Char['name']}** - Show: {Char['show']} - Rarity: {Char['rarity']}")
                 await interaction.edit_original_response(embed=em)
+        
                 
         
         
@@ -341,11 +333,10 @@ class Buttons(discord.ui.View):
             Buttons.remove_item(self,child)
     
         await interaction.response.edit_message(view=self)
-        return
         
 
 async def send_logs_newuser(self, member, server):
-    channel = await self.bot.get_channel(newUserChannelID)
+    channel = await self.bot.get_channel(config.NEW_USER_LOG_ID)
     try:
         await channel.send(f'**New User!** - User: **{member.name}** - Server: **{server.name}**')
     except:
@@ -403,19 +394,19 @@ async def createpres(member):
             presDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
             return
 
-async def createblock(member):
-    data = blockDB.find_one({"id":member.id})
-    if data is None:
-        newuser = {"id": member.id,"name":member.name}
-        blockDB.insert_one(newuser)
-        blockDB.update_one({"id":member.id}, {"$set":{"blocklist": [] }})
-        return
-    else:
-        if data["name"] == member.name:
-            return
-        else:
-            blockDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
-            return
+# async def createblock(member):
+#     data = blockDB.find_one({"id":member.id})
+#     if data is None:
+#         newuser = {"id": member.id,"name":member.name}
+#         blockDB.insert_one(newuser)
+#         blockDB.update_one({"id":member.id}, {"$set":{"blocklist": [] }})
+#         return
+#     else:
+#         if data["name"] == member.name:
+#             return
+#         else:
+#             blockDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
+#             return
 
 async def createshopuser(member,guild):
     data = shopDB.find_one({"id":member.id})
@@ -459,66 +450,66 @@ async def createshopuser(member,guild):
             shopDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
             return
 
-async def createsznuser(member):
-    data = sznDB.find_one({"id":member.id})
-    if data is None:
-        newuser = {"id": member.id,"name":member.name,"xp":0}
-        sznDB.insert_one(newuser)
-        return
-    else:
-        if data["name"] == member.name:
-            return
-        else:
-            sznDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
-            return
+# async def createsznuser(member):
+#     data = sznDB.find_one({"id":member.id})
+#     if data is None:
+#         newuser = {"id": member.id,"name":member.name,"xp":0}
+#         sznDB.insert_one(newuser)
+#         return
+#     else:
+#         if data["name"] == member.name:
+#             return
+#         else:
+#             sznDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
+#             return
 
-async def createsznWinuser(member):
-    data = sznWinDB.find_one({"id":member.id})
-    if data is None:
-        newuser = {"id": member.id,"name":member.name}
-        sznWinDB.insert_one(newuser)
-        sznWinDB.update_one({"id":member.id}, {"$set":{"prevSeasons":[]}})
-        return
-    else:
-        if data["name"] == member.name:
-            return
-        else:
-            sznWinDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
-            return
+# async def createsznWinuser(member):
+#     data = sznWinDB.find_one({"id":member.id})
+#     if data is None:
+#         newuser = {"id": member.id,"name":member.name}
+#         sznWinDB.insert_one(newuser)
+#         sznWinDB.update_one({"id":member.id}, {"$set":{"prevSeasons":[]}})
+#         return
+#     else:
+#         if data["name"] == member.name:
+#             return
+#         else:
+#             sznWinDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
+#             return
 
-async def createachuser(member):
-    data = achDB.find_one({"id":member.id})
-    if data is None:
-        newuser = {"id": member.id,"name":member.name,"votes":0, "trades":0}
-        achDB.insert_one(newuser)
-        return
-    else:
-        if data["name"] == member.name:
-            return
-        else:
-            achDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
-            return
+# async def createachuser(member):
+#     data = achDB.find_one({"id":member.id})
+#     if data is None:
+#         newuser = {"id": member.id,"name":member.name,"votes":0, "trades":0}
+#         achDB.insert_one(newuser)
+#         return
+#     else:
+#         if data["name"] == member.name:
+#             return
+#         else:
+#             achDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
+#             return
             
         
-class ACR(commands.Cog):
+class CCRP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @commands.Cog.listener()
     async def on_ready(self):
-        print("ACR Cog loaded!")
+        print("ACRP Cog loaded!")
         
     #Test Command
-    @app_commands.command(name="acraffle",description="ACraffle - Roll for a character of any rarity! - 1 hr Cooldown")
+    @app_commands.command(name="ccrp",description="CCraffleplus - Roll for a Rare, Epic, or Legendary character! - Random Cooldown")
     @app_commands.checks.cooldown(1,10,key=lambda i: (i.user.id))
-    async def acraffle(self,interaction: discord.Interaction):
+    async def ccrp(self,interaction: discord.Interaction):
         # await interaction.response.send_message(view=Buttons())
         #print('here1')
         member = interaction.user
         guild = interaction.guild
         botStats = botstatsDB.find_one({"id":573})
         if botStats['botOffline']==True:
-            em = discord.Embed(title = f"ACraffle - {member.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = discord.Color.red())#getColor('botColor'))
+            em = discord.Embed(title = f"CCraffle - {member.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = discord.Color.red())#getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed = em)
             return
@@ -531,9 +522,9 @@ class ACR(commands.Cog):
         #print(1)
         await createshopuser(member,guild)
         #print(2)
-        await createsznuser(member)
+        # await createsznuser(member)
         #print(3)
-        await createsznWinuser(member)
+        # await createsznWinuser(member)
         #print(4)
         try:
             user = userDB.find_one({"id":member.id})
@@ -544,14 +535,14 @@ class ACR(commands.Cog):
 
         currenttime = datetime.datetime.utcnow()
         try:
-            cooldownVal = user['acrCooldown']
-            hours_added = datetime.timedelta(hours=1)
-            futureTime = cooldownVal + hours_added
-            if currenttime < futureTime:
-                cooldownTimer = futureTime - currenttime
+            #cooldownVal = user['acrpCooldown']
+            endcooldown = user['acrpCooldown']
+            #print(endcooldown)
+            if currenttime < endcooldown:
+                cooldownTimer = endcooldown - currenttime
                 #print(cooldownTimer)
                 # print(cooldownTimer.seconds)
-                em = discord.Embed(title = f"ACraffle Cooldown - {member.name}",description = '**/acr** is on cooldown for you.',color = discord.Color.teal())
+                em = discord.Embed(title = f"CCraffleplus Cooldown - {member.name}",description = '**/acrp** is on cooldown for you.',color = discord.Color.teal())
                 if cooldownTimer.seconds >= 3600:
                     em.add_field(name = "Time Left", value = f'**{int(cooldownTimer.seconds/3600)}** hours **{int(cooldownTimer.seconds/60) - (60*int(cooldownTimer.seconds/3600))}** minutes')
                 elif cooldownTimer.seconds < 3600 and cooldownTimer.seconds >= 60:
@@ -567,7 +558,7 @@ class ACR(commands.Cog):
                     elif user['lstype'] == "Random":
                         screenList = []
                         screens = user['loadingscreens']
-                        it = 0
+                        it =0
                         for var in screens:
                             it+=1
                             screenList.append(int(var['number']))
@@ -577,26 +568,24 @@ class ACR(commands.Cog):
                         em.set_image(url = screenFound['gif'])
                 except:
                     pass
-                # print('eher6')
                 await interaction.response.send_message(embed=em)
-                
                 #await send_logs_cooldown(ctx.author,ctx.message.guild)
                 return
         except:
             pass
         
         #print('here7')
-        em = discord.Embed(title = f"ACraffle - {member.name.capitalize()}",description="Press Raffle to roll for a character!\nCommon, Uncommon, Rare, Epic, Legendary",color = discord.Color.teal())
+        em = discord.Embed(title = f"CCraffleplus - {member.name.capitalize()}",description="Press Raffle to roll for a character!\nCommon, Uncommon, Rare, Epic, Legendary",color = discord.Color.teal())
         em.set_thumbnail(url = member.avatar)
 
-        # secondem = discord.Embed(title = f"ACraffle\nRolling character for {member.name}...",color = discord.Color.teal())
+        # secondem = discord.Embed(title = f"CCraffleplus\nRolling character for {member.name}...",color = discord.Color.teal())
         # secondem.set_thumbnail(url = member.avatar)
 
         try:
             if user['lstype'] == "Select":
                 loadingscreen = user['currentloadingscreen']
                 em.set_image(url = loadingscreen)
-                # secondem.set_image(url = loadingscreen)
+                #secondem.set_image(url = loadingscreen)
             elif user['lstype'] == "Random":
                 screenList = []
                 screens = user['loadingscreens']
@@ -608,19 +597,19 @@ class ACR(commands.Cog):
                 randScreen = random.randint(0,it)
                 screenFound = loadingScreenDB.find_one({'number':screenList[randScreen]})
                 em.set_image(url = screenFound['gif'])
-                # secondem.set_image(url = screenFound['gif'])
+                #secondem.set_image(url = screenFound['gif'])
         except:
             pass
-        
-        
-        
+
         view = Buttons(interaction.user,self.bot)
         await interaction.response.send_message(embed=em, view=view)
         view.message = await interaction.original_response()
         
-        
+
+       
+            
         
         
 async def setup(bot):
-    await bot.add_cog(ACR(bot))
+    await bot.add_cog(CCRP(bot))
     

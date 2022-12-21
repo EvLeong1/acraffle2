@@ -7,18 +7,14 @@ import pymongo
 
 cluster = pymongo.MongoClient(config.MONGOTOKEN)
 
-charDB = cluster["acrafflebot"]["characters"]
-userDB = cluster["acrafflebot"]["users"]
+charDB = cluster["acraffleCartoon"]["characters"]
+userDB = cluster["acraffleCartoon"]["users"]
+shopDB = cluster["acraffleCartoon"]["usershops"]
+showDB = cluster["acraffleCartoon"]["shows"]
 botstatsDB = cluster["acrafflebot"]["botstats"]
-showDB = cluster["acrafflebot"]["shows"]
-loadingScreenDB = cluster["acrafflebot"]["loadingscreens"]
-shopDB = cluster["acrafflebot"]["usershops"]
-voteDB = cluster["acrafflebot"]["uservotes"]
-blockDB = cluster["acrafflebot"]["blocks"]
-presDB = cluster["acrafflebot"]["userprestige"]
-achDB = cluster["acrafflebot"]["achievements"]
-sznDB = cluster["acrafflebot"]["seasons"]
-sznWinDB = cluster["acrafflebot"]["sznwinners"]  
+presDB = cluster["acraffleCartoon"]["userprestige"]
+
+
 def getPresCol(level):
     if level == 0:
         color = discord.Color.teal()
@@ -45,23 +41,19 @@ async def createuser(member,guild):
                 return
 
 
-
-
-
-       
-class ACBS(commands.Cog):
+class CCBS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @commands.Cog.listener()
     async def on_ready(self):
-        print("ACBS Cog loaded!")
+        print("CCBS Cog loaded!")
         
     #Test Command
-    @app_commands.command(name="acbs",description="ACbankshow shows your unlocked characters for the specified show")
-    @app_commands.describe(show="Use the show name or abbriviation found in /acshows",
+    @app_commands.command(name="ccbs",description="ACbankshow shows your unlocked characters for the specified show")
+    @app_commands.describe(show="Use the show name or abbriviation found in /ccshows",
                            user="Specify a user or @ yourself for your own bank")
-    async def acbs(self,interaction: discord.Interaction, show: str, user:discord.User):
+    async def ccbs(self,interaction: discord.Interaction, show: str, user:discord.User):
         await interaction.response.defer()
         member = user
         guild = interaction.guild
@@ -73,9 +65,8 @@ class ACBS(commands.Cog):
         try:
             userChars = user["characters"]
         except:
-            em = discord.Embed(title = f"{member.name.capitalize()} hasn't unlocked any characters!\nDo */acraffle*  to get started!",color = discord.Color.teal())
+            em = discord.Embed(title = f"{member.name.capitalize()} hasn't unlocked any characters!\nDo */ccraffle*  to get started!",color = discord.Color.teal())
             await interaction.edit_original_response(embed=em)
-            return
             
         
         try:
@@ -90,9 +81,8 @@ class ACBS(commands.Cog):
                 pass
 
         if showFound == None:
-            em = discord.Embed(title = f"ACbankshow- Show not found.",description = f"**Remember to use the *abbreviation* of the show *or* how it is formatted in /acbank but without spaces** :\nExample: */acbs demonslayer\nExample: /acbs ds*",color = discord.Color.teal())
+            em = discord.Embed(title = f"ACbankshow- Show not found.",description = f"Remember to use the *abbreviation* of the show found in **/ccshows**\nExample: **/ccbs atla**",color = discord.Color.teal())
             await interaction.edit_original_response(embed=em)
-            return
             
 
         showPrint = showFound["title"]
@@ -154,9 +144,6 @@ class ACBS(commands.Cog):
         singlePage.set_thumbnail(url = showFound['thumbnail'])
     
         # await ctx.send(embed = singlePage)
-        chl = self.bot.get_channel(config.BANK_LOG_ID)
-        await chl.send(f"**/acbs** - User: **{member.name}** - Guild: **{interaction.guild}** - Show: **{showFound['title']}**")
-            
         await interaction.edit_original_response(embed=singlePage)
         # commanduser = ctx.author
         # await send_logs_acbs(commanduser,member, guild, "acbankspecific",showInput)
@@ -169,4 +156,4 @@ class ACBS(commands.Cog):
 
         
 async def setup(bot):
-    await bot.add_cog(ACBS(bot))
+    await bot.add_cog(CCBS(bot))

@@ -8,18 +8,16 @@ import random
 
 cluster = pymongo.MongoClient(config.MONGOTOKEN)
 
-charDB = cluster["acrafflebot"]["characters"]
-userDB = cluster["acrafflebot"]["users"]
 botstatsDB = cluster["acrafflebot"]["botstats"]
-showDB = cluster["acrafflebot"]["shows"]
-loadingScreenDB = cluster["acrafflebot"]["loadingscreens"]
-shopDB = cluster["acrafflebot"]["usershops"]
+
+charDB = cluster["acraffleCartoon"]["characters"]
+userDB = cluster["acraffleCartoon"]["users"]
+shopDB = cluster["acraffleCartoon"]["usershops"]
+showDB = cluster["acraffleCartoon"]["shows"]
+presDB = cluster["acraffleCartoon"]["userprestige"]
+loadingScreenDB = cluster["acraffleCartoon"]["loadingscreens"]
 voteDB = cluster["acrafflebot"]["uservotes"]
-blockDB = cluster["acrafflebot"]["blocks"]
-presDB = cluster["acrafflebot"]["userprestige"]
-achDB = cluster["acrafflebot"]["achievements"]
-sznDB = cluster["acrafflebot"]["seasons"]
-sznWinDB = cluster["acrafflebot"]["sznwinners"] 
+moneyDB = cluster["acrafflebot"]["usershops"]
 
 rarities = ["common", "uncommon", "rare","epic","legendary"]
 bs = botstatsDB.find_one({"id":573})
@@ -50,7 +48,7 @@ async def createuser(member,guild,bot):
         else:
             userDB.update_one({"id":member.id}, {"$set":{"name":member.name}})
             return
-        
+
 def getColor(rarity):
     if rarity == "common":
         color = discord.Color.default()
@@ -155,21 +153,22 @@ class Select(discord.ui.Select):
         if self.values[0] == 'option1':
             #print('home')
             user = shopDB.find_one({"id":member.id})
-            usermoney = user["money"]
+            userMon = moneyDB.find_one({"id":member.id})
+            usermoney = userMon["money"]
             gethour = datetime.datetime.utcnow()
             currenthour = gethour.hour
             currentminute = gethour.minute
-            homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually: **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+            homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually: **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
             homeem.set_thumbnail(url = member.avatar)
             homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
             view = homeComp(interaction.user)
             await interaction.response.edit_message(embed=homeem,view=view)
             view.message = await interaction.original_response()
-
         if self.values[0] == 'option2':
             # print('uncommon')
             user = shopDB.find_one({"id":member.id})
-            usermoney = user["money"]
+            userMon = moneyDB.find_one({"id":member.id})
+            usermoney = userMon["money"]
             gethour = datetime.datetime.utcnow()
             currenthour = gethour.hour
             currentminute = gethour.minute
@@ -183,12 +182,12 @@ class Select(discord.ui.Select):
             
             uncommonChar = charDB.find_one({"name":charShoplist[0]})
             showOut = showDB.find_one({'name':uncommonChar['show']})
-            uncommonem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",color = getColor(uncommonChar['rarity']))
+            uncommonem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",color = getColor(uncommonChar['rarity']))
             uncommonem.add_field(name=f"{uncommonChar['name'].capitalize()}",value=f"**Show:** {showOut['title']} ({showOut['abv']})\n**Rarity:** {uncommonChar['rarity'].capitalize()}",inline=True)
             uncommonem.add_field(name="Price",value=f"${uncommonprice}",inline=True)
             uncommonem.add_field(name="User Balance",value=f"${usermoney}",inline=True)
             uprof = userDB.find_one({"id":member.id})
-            
+            # print('here1')
             try:
                 uchars = uprof['characters']
             except:
@@ -204,8 +203,8 @@ class Select(discord.ui.Select):
                 uncommonem.add_field(name="**Owned**",value=f"❌",inline=True)
             uncommonem.set_image(url = uncommonChar['gif'])
             uncommonem.set_thumbnail(url = member.avatar)
-            
-            if(user['money'] < uncommonprice and user["boughtuncommon"] == False ):
+            # print('here2')
+            if(usermoney < uncommonprice and user["boughtuncommon"] == False ):
                 await interaction.response.edit_message(embed=uncommonem,view=NotEnoughMoneyComp(interaction.user))
             elif (user["boughtuncommon"] == False):
                 await interaction.response.edit_message(embed=uncommonem,view=buyCompUn(interaction.user))
@@ -215,7 +214,8 @@ class Select(discord.ui.Select):
         if self.values[0] == 'option3':
             # print('rare')
             user = shopDB.find_one({"id":member.id})
-            usermoney = user["money"]
+            userMon = moneyDB.find_one({"id":member.id})
+            usermoney = userMon["money"]
             gethour = datetime.datetime.utcnow()
             currenthour = gethour.hour
             currentminute = gethour.minute
@@ -229,7 +229,7 @@ class Select(discord.ui.Select):
             
             rareChar = charDB.find_one({"name":charShoplist[1]})
             showOutrare = showDB.find_one({'name':rareChar['show']})
-            rareem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",color = getColor(rareChar['rarity']))
+            rareem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",color = getColor(rareChar['rarity']))
             rareem.add_field(name=f"**{rareChar['name'].capitalize()}**",value=f"Show: {showOutrare['title']} ({showOutrare['abv']})\nRarity: {rareChar['rarity'].capitalize()}",inline=True)
             rareem.add_field(name="**Price**",value=f"${rareprice}",inline=True)
             rareem.add_field(name="User Balance",value=f"${usermoney}",inline=True)
@@ -250,7 +250,7 @@ class Select(discord.ui.Select):
             rareem.set_image(url = rareChar['gif'])
             rareem.set_thumbnail(url = member.avatar)
             
-            if(user['money'] < rareprice and user["boughtrare"] == False ):
+            if(usermoney < rareprice and user["boughtrare"] == False ):
                 await interaction.response.edit_message(embed=rareem,view=NotEnoughMoneyComp(interaction.user))
             elif (user["boughtrare"] == False):
                 await interaction.response.edit_message(embed=rareem,view=buyCompRare(interaction.user))
@@ -260,7 +260,8 @@ class Select(discord.ui.Select):
         if self.values[0] == 'option4':
             # print('epic')
             user = shopDB.find_one({"id":member.id})
-            usermoney = user["money"]
+            userMon = moneyDB.find_one({"id":member.id})
+            usermoney = userMon["money"]
             gethour = datetime.datetime.utcnow()
             currenthour = gethour.hour
             currentminute = gethour.minute
@@ -274,7 +275,7 @@ class Select(discord.ui.Select):
             
             epicChar = charDB.find_one({"name":charShoplist[2]})
             showOutepic = showDB.find_one({'name':epicChar['show']})
-            epicem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",color = getColor(epicChar['rarity']))
+            epicem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",color = getColor(epicChar['rarity']))
             epicem.add_field(name=f"{epicChar['name'].capitalize()}",value=f"**Show:** {showOutepic['title']} ({showOutepic['abv']})\n**Rarity:** {epicChar['rarity'].capitalize()}",inline=True)
             epicem.add_field(name="Price",value=f"${epicprice}",inline=True)
             epicem.add_field(name="User Balance",value=f"${usermoney}",inline=True)
@@ -295,7 +296,7 @@ class Select(discord.ui.Select):
             epicem.set_image(url = epicChar['gif'])
             epicem.set_thumbnail(url = member.avatar)
             
-            if(user['money'] < epicprice and user["boughtepic"] == False ):
+            if(usermoney < epicprice and user["boughtepic"] == False ):
                 await interaction.response.edit_message(embed=epicem,view=NotEnoughMoneyComp(interaction.user))
             elif (user["boughtepic"] == False):
                 await interaction.response.edit_message(embed=epicem,view=buyCompEpic(interaction.user))
@@ -305,7 +306,8 @@ class Select(discord.ui.Select):
         if self.values[0] == 'option5':
             # print('leg 1')
             user = shopDB.find_one({"id":member.id})
-            usermoney = user["money"]
+            userMon = moneyDB.find_one({"id":member.id})
+            usermoney = userMon["money"]
             gethour = datetime.datetime.utcnow()
             currenthour = gethour.hour
             currentminute = gethour.minute
@@ -319,7 +321,7 @@ class Select(discord.ui.Select):
             
             legendaryChar1 = charDB.find_one({"name":charShoplist[3]})
             showOutleg = showDB.find_one({'name':legendaryChar1['show']})
-            legem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",color = getColor(legendaryChar1['rarity']))
+            legem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",color = getColor(legendaryChar1['rarity']))
             legem.add_field(name=f"{legendaryChar1['name'].capitalize()}",value=f"**Show:** {showOutleg['title']} ({showOutleg['abv']})\n**Rarity:** {legendaryChar1['rarity'].capitalize()}",inline=True)
             legem.add_field(name="Price",value=f"${legendaryprice}",inline=True)
             legem.add_field(name="User Balance",value=f"${usermoney}",inline=True)
@@ -340,7 +342,7 @@ class Select(discord.ui.Select):
             legem.set_image(url = legendaryChar1['gif'])
             legem.set_thumbnail(url = member.avatar)
             
-            if(user['money'] < legendaryprice and user["boughtlegendary1"] == False ):
+            if(usermoney < legendaryprice and user["boughtlegendary1"] == False ):
                 await interaction.response.edit_message(embed=legem,view=NotEnoughMoneyComp(interaction.user))
             elif (user["boughtlegendary1"] == False):
                 await interaction.response.edit_message(embed=legem,view=buyCompLeg1(interaction.user))
@@ -350,7 +352,8 @@ class Select(discord.ui.Select):
         if self.values[0] == 'option6':
             # print('leg2')
             user = shopDB.find_one({"id":member.id})
-            usermoney = user["money"]
+            userMon = moneyDB.find_one({"id":member.id})
+            usermoney = userMon["money"]
             # gethour = datetime.datetime.utcnow()
             # currenthour = gethour.hour
             # currentminute = gethour.minute
@@ -364,7 +367,7 @@ class Select(discord.ui.Select):
             
             legendaryChar2 = charDB.find_one({"name":charShoplist[4]})
             showOutleg2 = showDB.find_one({'name':legendaryChar2['show']})
-            legem2 = discord.Embed(title = f"ACraffle Character Shop - {member.name}",color = getColor(legendaryChar2['rarity']))
+            legem2 = discord.Embed(title = f"CCraffle Character Shop - {member.name}",color = getColor(legendaryChar2['rarity']))
             legem2.add_field(name=f"{legendaryChar2['name'].capitalize()}",value=f"**Show:** {showOutleg2['title']} ({showOutleg2['abv']})\n**Rarity:** {legendaryChar2['rarity'].capitalize()}",inline=True)
             legem2.add_field(name="Price",value=f"${legendaryprice}",inline=True)
             legem2.add_field(name="User Balance",value=f"${usermoney}")
@@ -387,7 +390,7 @@ class Select(discord.ui.Select):
             legem2.set_thumbnail(url = member.avatar)
             
             
-            if(user['money'] < legendaryprice and user["boughtlegendary2"] == False ):
+            if(usermoney < legendaryprice and user["boughtlegendary2"] == False ):
                 await interaction.response.edit_message(embed=legem2,view=NotEnoughMoneyComp(interaction.user))
             elif (user["boughtlegendary2"] == False):
                 await interaction.response.edit_message(embed=legem2,view=buyCompLeg2(interaction.user))
@@ -397,7 +400,8 @@ class Select(discord.ui.Select):
         if self.values[0] == 'option7':
             # print('LS')
             user = shopDB.find_one({"id":member.id})
-            usermoney = user["money"]
+            userMon = moneyDB.find_one({"id":member.id})
+            usermoney = userMon["money"]
             gethour = datetime.datetime.utcnow()
             currenthour = gethour.hour
             currentminute = gethour.minute
@@ -411,13 +415,13 @@ class Select(discord.ui.Select):
                     
             loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
             Ls = loadingScreenDB.find_one({'number':loadingScreen['number']})
-            loadingEm = discord.Embed(title = f"ACraffle Character Shop - {member.name}\nLoading Screen",color = getColor('loadingscreen'))
+            loadingEm = discord.Embed(title = f"CCraffle Character Shop - {member.name}\nLoading Screen",color = getColor('loadingscreen'))
             loadingEm.add_field(name="Price",value=f"${loadingprice}",inline=True)
             loadingEm.add_field(name="User Balance",value=f"${usermoney}",inline=True)
             loadingEm.set_image(url = Ls['gif'])
             loadingEm.set_thumbnail(url = member.avatar)
             
-            if(user['money'] < loadingprice and user["boughtloading"] == False ):
+            if(usermoney < loadingprice and user["boughtloading"] == False ):
                 await interaction.response.edit_message(embed=loadingEm,view=NotEnoughMoneyComp(interaction.user))
             elif (user["boughtloading"] == False):
                 await interaction.response.edit_message(embed=loadingEm,view=buyCompLS(interaction.user))
@@ -462,7 +466,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -477,7 +481,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -492,7 +496,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -507,7 +511,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[3])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -522,7 +526,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[4])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -537,7 +541,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[5])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -552,7 +556,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[6])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -567,7 +571,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[7])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -582,7 +586,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[8])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -597,7 +601,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[9])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -662,6 +666,7 @@ class buyCompUn(discord.ui.View):
         member= interaction.user
         
         user = shopDB.find_one({"id":member.id})
+        userMon = moneyDB.find_one({"id":member.id})
         userShop = user["characterShop"]
         charShoplist = []
         for x in userShop:
@@ -672,19 +677,16 @@ class buyCompUn(discord.ui.View):
             
         uncommonChar = charDB.find_one({"name":charShoplist[0]})
         
-        uncem = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought {uncommonChar['name'].capitalize()}!**",color = getColor('uncommon'))
+        uncem = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought {uncommonChar['name'].capitalize()}!**",color = getColor('uncommon'))
         uncem.set_image(url=uncommonChar["gif"])
         uncem.set_thumbnail(url = member.avatar)
             
         userDB.update_one({"id":member.id}, {"$addToSet":{"characters":{"name":uncommonChar["name"],"show":uncommonChar["show"],"rarity":uncommonChar["rarity"]}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":user["money"] - priceUn}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon['money'] - priceUn}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtuncommon":True}})
 
         updateLegendaryandEpic(member)
         updateCharsAmount(member)
-        
-        # chl = self.bot.get_channel(config.SHOP_LOG_ID)
-        # await chl.send(f"**/acshop** - User: **{member.name}** - Server: **{guild}**")
         
         view = purchaseSuccess(interaction.user)
         await interaction.response.edit_message(embed=uncem, view=view)
@@ -722,6 +724,9 @@ class buyCompRare(discord.ui.View):
         member = interaction.user
         
         user = shopDB.find_one({"id":member.id})
+        userMon = moneyDB.find_one({"id":member.id})
+       
+        
         userShop = user["characterShop"]
         charShoplist = []
         for x in userShop:
@@ -732,12 +737,12 @@ class buyCompRare(discord.ui.View):
             
         rareChar = charDB.find_one({"name":charShoplist[1]})
         
-        rareem = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought {rareChar['name'].capitalize()}!**",color = getColor('rare'))
+        rareem = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought {rareChar['name'].capitalize()}!**",color = getColor('rare'))
         rareem.set_image(url=rareChar["gif"])
         rareem.set_thumbnail(url = member.avatar)
             
         userDB.update_one({"id":member.id}, {"$addToSet":{"characters":{"name":rareChar["name"],"show":rareChar["show"],"rarity":rareChar["rarity"]}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":user["money"] - priceRare}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceRare}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtrare":True}})
 
         updateLegendaryandEpic(member)
@@ -779,6 +784,7 @@ class buyCompEpic(discord.ui.View):
         member = interaction.user
         
         user = shopDB.find_one({"id":member.id})
+        userMon = moneyDB.find_one({"id":member.id})
         userShop = user["characterShop"]
         charShoplist = []
         for x in userShop:
@@ -789,12 +795,12 @@ class buyCompEpic(discord.ui.View):
             
         epipChar = charDB.find_one({"name":charShoplist[2]})
         
-        epicem = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought {epipChar['name'].capitalize()}!**",color = getColor('epic'))
+        epicem = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought {epipChar['name'].capitalize()}!**",color = getColor('epic'))
         epicem.set_image(url=epipChar["gif"])
         epicem.set_thumbnail(url = member.avatar)
             
         userDB.update_one({"id":member.id}, {"$addToSet":{"characters":{"name":epipChar["name"],"show":epipChar["show"],"rarity":epipChar["rarity"]}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":user["money"] - priceEpic}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceEpic}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtepic":True}})
 
         updateLegendaryandEpic(member)
@@ -836,6 +842,8 @@ class buyCompLeg1(discord.ui.View):
         member = interaction.user
         
         user = shopDB.find_one({"id":member.id})
+        userMon = moneyDB.find_one({"id":member.id})
+
         userShop = user["characterShop"]
         charShoplist = []
         for x in userShop:
@@ -846,12 +854,12 @@ class buyCompLeg1(discord.ui.View):
             
         legChar = charDB.find_one({"name":charShoplist[3]})
         
-        legembed1 = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought {legChar['name'].capitalize()}!**",color = getColor('legendary'))
+        legembed1 = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought {legChar['name'].capitalize()}!**",color = getColor('legendary'))
         legembed1.set_image(url=legChar["gif"])
         legembed1.set_thumbnail(url = member.avatar)
             
         userDB.update_one({"id":member.id}, {"$addToSet":{"characters":{"name":legChar["name"],"show":legChar["show"],"rarity":legChar["rarity"]}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":user["money"] - priceLeg}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLeg}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtlegendary1":True}})
 
         updateLegendaryandEpic(member)
@@ -892,6 +900,7 @@ class buyCompLeg2(discord.ui.View):
         member = interaction.user
         
         user = shopDB.find_one({"id":member.id})
+        userMon = moneyDB.find_one({"id":member.id})
         userShop = user["characterShop"]
         charShoplist = []
         for x in userShop:
@@ -902,12 +911,12 @@ class buyCompLeg2(discord.ui.View):
             
         legChar2 = charDB.find_one({"name":charShoplist[4]})
         
-        legembed2 = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought {legChar2['name'].capitalize()}!**",color = getColor('legendary'))
+        legembed2 = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought {legChar2['name'].capitalize()}!**",color = getColor('legendary'))
         legembed2.set_image(url=legChar2["gif"])
         legembed2.set_thumbnail(url = member.avatar)
             
         userDB.update_one({"id":member.id}, {"$addToSet":{"characters":{"name":legChar2["name"],"show":legChar2["show"],"rarity":legChar2["rarity"]}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":user["money"] - priceLeg}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLeg}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtlegendary2":True}})
 
         updateLegendaryandEpic(member)
@@ -972,7 +981,7 @@ class buyCompLS(discord.ui.View):
         #print(i)
         if i >= 10:
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
+            findFirstLoadingEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**You can only have 10 loading screens! Please choose one to replace with the new one you are purchasing**",color = getColor('loadingscreen'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             #print('ham')
@@ -984,12 +993,13 @@ class buyCompLS(discord.ui.View):
         else:
             priceLoad = loadingprice
             loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
-            loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acloadingscreen)**",color = getColor('loadingscreen'))
+            loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/CCloadingscreen)**",color = getColor('loadingscreen'))
             loadEm.set_image(url=loadingScreen["gif"])
             loadEm.set_thumbnail(url = member.avatar)
+            userMon = moneyDB.find_one({"id":member.id})
 
             userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-            shopDB.update_one({"id":member.id}, {"$set":{"money":user["money"] - priceLoad}})
+            moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
             shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
 
             updateLegendaryandEpic(member)
@@ -1142,7 +1152,7 @@ class replaceAndBuyLS1(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1152,10 +1162,11 @@ class replaceAndBuyLS1(discord.ui.View):
         userUserDB = userDB.find_one({'id':member.id})
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
+        userMon = moneyDB.find_one({"id":member.id})
 
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[0])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1166,17 +1177,18 @@ class replaceAndBuyLS1(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
         
 class replaceAndBuyLS2(discord.ui.View):
@@ -1209,7 +1221,7 @@ class replaceAndBuyLS2(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1219,10 +1231,11 @@ class replaceAndBuyLS2(discord.ui.View):
         userUserDB = userDB.find_one({'id':member.id})
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
+        userMon = moneyDB.find_one({"id":member.id})
 
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[1])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1233,17 +1246,18 @@ class replaceAndBuyLS2(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
         
 class replaceAndBuyLS3(discord.ui.View):
@@ -1276,7 +1290,7 @@ class replaceAndBuyLS3(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1286,10 +1300,11 @@ class replaceAndBuyLS3(discord.ui.View):
         userUserDB = userDB.find_one({'id':member.id})
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
-
+            
+        userMon = moneyDB.find_one({"id":member.id})    
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[2])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1300,17 +1315,18 @@ class replaceAndBuyLS3(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
         
 class replaceAndBuyLS4(discord.ui.View):
@@ -1343,7 +1359,7 @@ class replaceAndBuyLS4(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1354,9 +1370,10 @@ class replaceAndBuyLS4(discord.ui.View):
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
 
+        userMon = moneyDB.find_one({"id":member.id})
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[3])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1367,17 +1384,18 @@ class replaceAndBuyLS4(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
         
 class replaceAndBuyLS5(discord.ui.View):
@@ -1410,9 +1428,11 @@ class replaceAndBuyLS5(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
+        
+        
 
         userProf = shopDB.find_one({"id":member.id})
         findLS = loadingScreenDB.find_one({'number':int(screenlist[4])})
@@ -1420,10 +1440,12 @@ class replaceAndBuyLS5(discord.ui.View):
         userUserDB = userDB.find_one({'id':member.id})
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
-
+            
+            
+        userMon = moneyDB.find_one({"id":member.id})
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[4])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1434,17 +1456,18 @@ class replaceAndBuyLS5(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
         
 class replaceAndBuyLS6(discord.ui.View):
@@ -1477,7 +1500,7 @@ class replaceAndBuyLS6(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1487,10 +1510,12 @@ class replaceAndBuyLS6(discord.ui.View):
         userUserDB = userDB.find_one({'id':member.id})
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
+            
+        userMon = moneyDB.find_one({"id":member.id})
 
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[5])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1501,17 +1526,18 @@ class replaceAndBuyLS6(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
         
 class replaceAndBuyLS7(discord.ui.View):
@@ -1544,7 +1570,7 @@ class replaceAndBuyLS7(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1554,10 +1580,12 @@ class replaceAndBuyLS7(discord.ui.View):
         userUserDB = userDB.find_one({'id':member.id})
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
+        
+        userMon = moneyDB.find_one({"id":member.id})
 
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[6])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1568,17 +1596,18 @@ class replaceAndBuyLS7(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
 
 class replaceAndBuyLS8(discord.ui.View):
@@ -1611,7 +1640,7 @@ class replaceAndBuyLS8(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1622,9 +1651,10 @@ class replaceAndBuyLS8(discord.ui.View):
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
 
+        userMon = moneyDB.find_one({"id":member.id})
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[7])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1635,17 +1665,18 @@ class replaceAndBuyLS8(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
 
 class replaceAndBuyLS9(discord.ui.View):
@@ -1678,7 +1709,7 @@ class replaceAndBuyLS9(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1689,9 +1720,10 @@ class replaceAndBuyLS9(discord.ui.View):
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
 
+        userMon = moneyDB.find_one({"id":member.id})
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[8])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1702,17 +1734,18 @@ class replaceAndBuyLS9(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
         
 class replaceAndBuyLS10(discord.ui.View):
@@ -1745,7 +1778,7 @@ class replaceAndBuyLS10(discord.ui.View):
 
         loadingScreen = loadingScreenDB.find_one({"number":charShoplist[5]})
         
-        loadEm = discord.Embed(title = f"ACcharactershop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(/acls)**",color = getColor('loadingscreen'))
+        loadEm = discord.Embed(title = f"CCshop - {member.name}",description=f"**{member.name} bought the Loading Screen!**\nIt has been added to your Loading Screen collection **(!acls)**",color = getColor('loadingscreen'))
         loadEm.set_image(url=loadingScreen["gif"])
         loadEm.set_thumbnail(url = member.avatar)
 
@@ -1756,9 +1789,10 @@ class replaceAndBuyLS10(discord.ui.View):
         if userUserDB['currentloadingscreen'] == findLS['gif']:
             userDB.update_one({"id":member.id}, {"$set":{"currentloadingscreen":newLS['gif']}})
 
+        userMon = moneyDB.find_one({"id":member.id})
         userDB.update_one({"id":member.id}, {"$pull":{"loadingscreens":{"number":int(screenlist[9])}}})
         userDB.update_one({"id":member.id}, {"$addToSet":{"loadingscreens":{"number":int(loadingScreen["number"])}}})
-        shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"] - priceLoad}})
+        moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"] - priceLoad}})
         shopDB.update_one({"id":member.id}, {"$set":{"boughtloading":True}})
         
         view = purchaseSuccess(interaction.user)
@@ -1769,17 +1803,18 @@ class replaceAndBuyLS10(discord.ui.View):
     async def homefromls(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
         user = shopDB.find_one({"id":member.id})
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         gethour = datetime.datetime.utcnow()
         currenthour = gethour.hour
         currentminute = gethour.minute
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         # await interaction.response.edit_message(embed=homeem,view=homeComp(interaction.user))
     
         view = homeComp(interaction.user)
-        await interaction.response.edit_message(embed=homeem,view=view)
+        await interaction.response.edit_message(view=view)
         view.message = await interaction.original_response()
         
         
@@ -1830,30 +1865,31 @@ class ResetShop(discord.ui.View):
                     randNum = random.randint(1,100000000000)
                     # randseed = int(member.id + randNum)
                     random.seed(randNum)
-                    try:
-                        ublocks = blockDB.find_one({'id':member.id})
-                        blist = ublocks['blocklist']
-                        newblist = []
-                        for itm in blist:
-                            newblist.append(itm['show'])
-                    except:
-                        newblist=[]
+                    # try:
+                    #     ublocks = blockDB.find_one({'id':member.id})
+                    #     blist = ublocks['blocklist']
+                    #     newblist = []
+                    #     for itm in blist:
+                    #         newblist.append(itm['show'])
+                    # except:
+                    #     newblist=[]
                     if x == 1:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while uncChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while uncChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         #userDB.update_one({"id":member.id}, {"$pull":{"favorites":{"name":favs[0]}}})
                         #shopDB.update_one({"id":member.id}, {"$pull":{"characterShop":{"rarity":"uncommon"}}})
                         shopDB.update_one({"id":member.id,"characterShop":{"name":uncommonChar["name"],"show":uncommonChar["show"],"rarity":uncommonChar["rarity"]}}, {"$set":{"characterShop.$":{"name":uncChar["name"],"show":uncChar["show"],"rarity":uncChar["rarity"]}}})
 
                         
             resetShop()
-            shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"]-round(uncommonprice/2)}})
+            userMon = moneyDB.find_one({"id":member.id})
+            moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"]-round(uncommonprice/2)}})
                 
-            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /acshop to check what you got",color = getColor('botColor'))
+            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /ccshop to check what you got",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
         
             for child in self.children:
@@ -1872,30 +1908,31 @@ class ResetShop(discord.ui.View):
                     randNum = random.randint(1,100000000000)
                     # randseed = int(member.id + randNum)
                     random.seed(randNum)
-                    try:
-                        ublocks = blockDB.find_one({'id':member.id})
-                        blist = ublocks['blocklist']
-                        newblist = []
-                        for itm in blist:
-                            newblist.append(itm['show'])
-                    except:
-                        newblist=[]
+                    # try:
+                    #     ublocks = blockDB.find_one({'id':member.id})
+                    #     blist = ublocks['blocklist']
+                    #     newblist = []
+                    #     for itm in blist:
+                    #         newblist.append(itm['show'])
+                    # except:
+                    #     newblist=[]
                     if x == 2:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while uncChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while uncChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         #userDB.update_one({"id":member.id}, {"$pull":{"favorites":{"name":favs[0]}}})
                         #shopDB.update_one({"id":member.id}, {"$pull":{"characterShop":{"rarity":"uncommon"}}})
                         shopDB.update_one({"id":member.id,"characterShop":{"name":rareChar["name"],"show":rareChar["show"],"rarity":rareChar["rarity"]}}, {"$set":{"characterShop.$":{"name":uncChar["name"],"show":uncChar["show"],"rarity":uncChar["rarity"]}}})
             
                         
             resetShop()
-            shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"]-round(rareprice/2)}})
+            userMon = moneyDB.find_one({"id":member.id})
+            moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"]-round(rareprice/2)}})
                 
-            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /acshop to check what you got",color = getColor('botColor'))
+            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /ccshop to check what you got",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
         
             for child in self.children:
@@ -1914,30 +1951,31 @@ class ResetShop(discord.ui.View):
                     randNum = random.randint(1,100000000000)
                     # randseed = int(member.id + randNum)
                     random.seed(randNum)
-                    try:
-                        ublocks = blockDB.find_one({'id':member.id})
-                        blist = ublocks['blocklist']
-                        newblist = []
-                        for itm in blist:
-                            newblist.append(itm['show'])
-                    except:
-                        newblist=[]
+                    # try:
+                    #     ublocks = blockDB.find_one({'id':member.id})
+                    #     blist = ublocks['blocklist']
+                    #     newblist = []
+                    #     for itm in blist:
+                    #         newblist.append(itm['show'])
+                    # except:
+                    #     newblist=[]
                     if x == 3:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while uncChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while uncChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         #userDB.update_one({"id":member.id}, {"$pull":{"favorites":{"name":favs[0]}}})
                         #shopDB.update_one({"id":member.id}, {"$pull":{"characterShop":{"rarity":"uncommon"}}})
                         shopDB.update_one({"id":member.id,"characterShop":{"name":epicChar["name"],"show":epicChar["show"],"rarity":epicChar["rarity"]}}, {"$set":{"characterShop.$":{"name":uncChar["name"],"show":uncChar["show"],"rarity":uncChar["rarity"]}}})
             
                         
             resetShop()
-            shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"]-round(epicprice/2)}})
+            userMon = moneyDB.find_one({"id":member.id})
+            moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"]-round(epicprice/2)}})
                 
-            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /acshop to check what you got",color = getColor('botColor'))
+            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /ccshop to check what you got",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
         
             for child in self.children:
@@ -1956,29 +1994,31 @@ class ResetShop(discord.ui.View):
                     randNum = random.randint(1,100000000000)
                     # randseed = int(member.id + randNum)
                     random.seed(randNum)
-                    try:
-                        ublocks = blockDB.find_one({'id':member.id})
-                        blist = ublocks['blocklist']
-                        newblist = []
-                        for itm in blist:
-                            newblist.append(itm['show'])
-                    except:
-                        newblist=[]
+                    # try:
+                    #     ublocks = blockDB.find_one({'id':member.id})
+                    #     blist = ublocks['blocklist']
+                    #     newblist = []
+                    #     for itm in blist:
+                    #         newblist.append(itm['show'])
+                    # except:
+                    #     newblist=[]
                     if x == 4:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while uncChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while uncChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         #userDB.update_one({"id":member.id}, {"$pull":{"favorites":{"name":favs[0]}}})
                         #shopDB.update_one({"id":member.id}, {"$pull":{"characterShop":{"rarity":"uncommon"}}})
                         shopDB.update_one({"id":member.id,"characterShop":{"name":legendaryChar1["name"],"show":legendaryChar1["show"],"rarity":legendaryChar1["rarity"]}}, {"$set":{"characterShop.$":{"name":uncChar["name"],"show":uncChar["show"],"rarity":uncChar["rarity"]}}})
             
+                        
             resetShop()
-            shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"]-round(legendaryprice/2)}})
+            userMon = moneyDB.find_one({"id":member.id})
+            moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"]-round(legendaryprice/2)}})
                 
-            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /acshop to check what you got",color = getColor('botColor'))
+            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /ccshop to check what you got",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
         
             for child in self.children:
@@ -1997,30 +2037,31 @@ class ResetShop(discord.ui.View):
                     randNum = random.randint(1,100000000000)
                     # randseed = int(member.id + randNum)
                     random.seed(randNum)
-                    try:
-                        ublocks = blockDB.find_one({'id':member.id})
-                        blist = ublocks['blocklist']
-                        newblist = []
-                        for itm in blist:
-                            newblist.append(itm['show'])
-                    except:
-                        newblist=[]
+                    # try:
+                    #     ublocks = blockDB.find_one({'id':member.id})
+                    #     blist = ublocks['blocklist']
+                    #     newblist = []
+                    #     for itm in blist:
+                    #         newblist.append(itm['show'])
+                    # except:
+                    #     newblist=[]
                     if x == 4:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while uncChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while uncChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         #userDB.update_one({"id":member.id}, {"$pull":{"favorites":{"name":favs[0]}}})
                         #shopDB.update_one({"id":member.id}, {"$pull":{"characterShop":{"rarity":"uncommon"}}})
                         shopDB.update_one({"id":member.id,"characterShop":{"name":legendaryChar2["name"],"show":legendaryChar2["show"],"rarity":legendaryChar2["rarity"]}}, {"$set":{"characterShop.$":{"name":uncChar["name"],"show":uncChar["show"],"rarity":uncChar["rarity"]}}})
             
                         
             resetShop()
-            shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"]-round(legendaryprice/2)}})
+            userMon = moneyDB.find_one({"id":member.id})
+            moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"]-round(legendaryprice/2)}})
                 
-            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /acshop to check what you got",color = getColor('botColor'))
+            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /ccshop to check what you got",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
         
             for child in self.children:
@@ -2039,14 +2080,14 @@ class ResetShop(discord.ui.View):
                     randNum = random.randint(1,100000000000)
                     # randseed = int(member.id + randNum)
                     random.seed(randNum)
-                    try:
-                        ublocks = blockDB.find_one({'id':member.id})
-                        blist = ublocks['blocklist']
-                        newblist = []
-                        for itm in blist:
-                            newblist.append(itm['show'])
-                    except:
-                        newblist=[]
+                    # try:
+                    #     ublocks = blockDB.find_one({'id':member.id})
+                    #     blist = ublocks['blocklist']
+                    #     newblist = []
+                    #     for itm in blist:
+                    #         newblist.append(itm['show'])
+                    # except:
+                    #     newblist=[]
                     if x == 5:
                         max = loadingScreenDB.count_documents({})
                         randomInt = random.randint(1,max) 
@@ -2057,9 +2098,10 @@ class ResetShop(discord.ui.View):
             
                         
             resetShop()
-            shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"]-round(loadingprice/2)}})
+            userMon = moneyDB.find_one({"id":member.id})
+            moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"]-round(loadingprice/2)}})
                 
-            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /acshop to check what you got",color = getColor('botColor'))
+            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /ccshop to check what you got",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
         
             for child in self.children:
@@ -2079,53 +2121,53 @@ class ResetShop(discord.ui.View):
                     randNum = random.randint(1,100000000000)
                     # randseed = int(member.id + randNum)
                     random.seed(randNum)
-                    try:
-                        ublocks = blockDB.find_one({'id':member.id})
-                        blist = ublocks['blocklist']
-                        newblist = []
-                        for itm in blist:
-                            newblist.append(itm['show'])
-                    except:
-                        newblist=[]
+                    # try:
+                    #     ublocks = blockDB.find_one({'id':member.id})
+                    #     blist = ublocks['blocklist']
+                    #     newblist = []
+                    #     for itm in blist:
+                    #         newblist.append(itm['show'])
+                    # except:
+                    #     newblist=[]
                     if x == 1:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while uncChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while uncChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":uncChar["name"],"show":uncChar["show"],"rarity":uncChar["rarity"]}}})
                     if x == 2:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         rareChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while rareChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            rareChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while rareChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     rareChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":rareChar["name"],"show":rareChar["show"],"rarity":rareChar["rarity"]}}})
                     if x == 3:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         epicChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while epicChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            epicChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while epicChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     epicChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":epicChar["name"],"show":epicChar["show"],"rarity":epicChar["rarity"]}}})
                     if x == 4:
                         max = charDB.count_documents({"rarity":rarities[x]})
                         randomInt = random.randint(1,max) 
                         legendaryChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                        while legendaryChar['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            legendaryChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                        # while legendaryChar['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     legendaryChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                         shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":legendaryChar["name"],"show":legendaryChar["show"],"rarity":legendaryChar["rarity"]}}})
                     if x == 5:
                         max = charDB.count_documents({"rarity":rarities[4]})
                         randomInt = random.randint(1,max) 
                         legChar2 = charDB.find_one({"rarity":rarities[4], "raritynumber": randomInt})
-                        while legChar2['show'] in newblist:
-                            randomInt = random.randint(1,max) 
-                            legChar2 = charDB.find_one({"rarity":rarities[4], "raritynumber": randomInt})
+                        # while legChar2['show'] in newblist:
+                        #     randomInt = random.randint(1,max) 
+                        #     legChar2 = charDB.find_one({"rarity":rarities[4], "raritynumber": randomInt})
                         shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":legChar2["name"],"show":legChar2["show"],"rarity":legChar2["rarity"]}}})
                     if x == 6:
                         max = loadingScreenDB.count_documents({})
@@ -2134,9 +2176,10 @@ class ResetShop(discord.ui.View):
                         shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"number":loadingScreen["number"]}}})
                         
             resetShop()
-            shopDB.update_one({"id":member.id}, {"$set":{"money":userProf["money"]-3000}})
+            userMon = moneyDB.find_one({"id":member.id})
+            moneyDB.update_one({"id":member.id}, {"$set":{"money":userMon["money"]-3000}})
                 
-            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /acshop to check what you got",color = getColor('botColor'))
+            em = discord.Embed(title = f"ACresetshop - {member.name}",description=f"**Shop Reset Successfully!**\nDo /ccshop to check what you got",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
         
             for child in self.children:
@@ -2167,21 +2210,21 @@ class ResetShop(discord.ui.View):
         
 ################## ACTUAL COMMAND UNDER THIS ######################
         
-class ACSHOP(commands.Cog):
+class CCSHOP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @commands.Cog.listener()
     async def on_ready(self):
-        print("ACSHOP Cog loaded!")
+        print("CCSHOP Cog loaded!")
         
-    @app_commands.command(name='acshop', description='Shop for characters! Resets Daily!')
-    async def acshop(self,interaction: discord.Interaction):
+    @app_commands.command(name='ccshop', description='Shop for characters! Resets Daily!')
+    async def ccshop(self,interaction: discord.Interaction):
         member=interaction.user
         guild = interaction.guild
         botStats = botstatsDB.find_one({"id":573})
         if botStats['botOffline']==True:
-            em = discord.Embed(title = f"ACcharactershop - {member.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = getColor('botColor'))
+            em = discord.Embed(title = f"CCcharactershop - {member.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -2201,53 +2244,53 @@ class ACSHOP(commands.Cog):
                 randNum = random.randint(1,100000000000)
                 # randseed = int(member.id + randNum)
                 random.seed(randNum)
-                try:
-                    ublocks = blockDB.find_one({'id':member.id})
-                    blist = ublocks['blocklist']
-                    newblist = []
-                    for itm in blist:
-                        newblist.append(itm['show'])
-                except:
-                    newblist=[]
+                # try:
+                #     ublocks = blockDB.find_one({'id':member.id})
+                #     blist = ublocks['blocklist']
+                #     newblist = []
+                #     for itm in blist:
+                #         newblist.append(itm['show'])
+                # except:
+                #     newblist=[]
                 if x == 1:
                     max = charDB.count_documents({"rarity":rarities[x]})
                     randomInt = random.randint(1,max) 
                     uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                    while uncChar['show'] in newblist:
-                        randomInt = random.randint(1,max) 
-                        uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                    # while uncChar['show'] in newblist:
+                    #     randomInt = random.randint(1,max) 
+                    #     uncChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                     shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":uncChar["name"],"show":uncChar["show"],"rarity":uncChar["rarity"]}}})
                 if x == 2:
                     max = charDB.count_documents({"rarity":rarities[x]})
                     randomInt = random.randint(1,max) 
                     rareChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                    while rareChar['show'] in newblist:
-                        randomInt = random.randint(1,max) 
-                        rareChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                    # while rareChar['show'] in newblist:
+                    #     randomInt = random.randint(1,max) 
+                    #     rareChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                     shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":rareChar["name"],"show":rareChar["show"],"rarity":rareChar["rarity"]}}})
                 if x == 3:
                     max = charDB.count_documents({"rarity":rarities[x]})
                     randomInt = random.randint(1,max) 
                     epicChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                    while epicChar['show'] in newblist:
-                        randomInt = random.randint(1,max) 
-                        epicChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                    # while epicChar['show'] in newblist:
+                    #     randomInt = random.randint(1,max) 
+                    #     epicChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                     shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":epicChar["name"],"show":epicChar["show"],"rarity":epicChar["rarity"]}}})
                 if x == 4:
                     max = charDB.count_documents({"rarity":rarities[x]})
                     randomInt = random.randint(1,max) 
                     legendaryChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
-                    while legendaryChar['show'] in newblist:
-                        randomInt = random.randint(1,max) 
-                        legendaryChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
+                    # while legendaryChar['show'] in newblist:
+                    #     randomInt = random.randint(1,max) 
+                    #     legendaryChar = charDB.find_one({"rarity":rarities[x], "raritynumber": randomInt})
                     shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":legendaryChar["name"],"show":legendaryChar["show"],"rarity":legendaryChar["rarity"]}}})
                 if x == 5:
                     max = charDB.count_documents({"rarity":rarities[4]})
                     randomInt = random.randint(1,max) 
                     legChar2 = charDB.find_one({"rarity":rarities[4], "raritynumber": randomInt})
-                    while legChar2['show'] in newblist:
-                        randomInt = random.randint(1,max) 
-                        legChar2 = charDB.find_one({"rarity":rarities[4], "raritynumber": randomInt})
+                    # while legChar2['show'] in newblist:
+                    #     randomInt = random.randint(1,max) 
+                    #     legChar2 = charDB.find_one({"rarity":rarities[4], "raritynumber": randomInt})
                     shopDB.update_one({"id":member.id}, {"$addToSet":{"characterShop":{"name":legChar2["name"],"show":legChar2["show"],"rarity":legChar2["rarity"]}}})
                 if x == 6:
                     max = loadingScreenDB.count_documents({})
@@ -2282,7 +2325,7 @@ class ACSHOP(commands.Cog):
             except:
                 pass
             resetShop()
-            em = discord.Embed(title = f"ACcharactershop - {member.name}\nYour shop has been reset since you last checked, please do /acshop again to see what you got!",color = getColor('botColor'))
+            em = discord.Embed(title = f"CCcharactershop - {member.name}\nYour shop has been reset since you last checked, please do /ccshop again to see what you got!",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -2314,7 +2357,7 @@ class ACSHOP(commands.Cog):
             except:
                 pass
             resetShop()
-            em = discord.Embed(title = f"ACcharactershop - {member.name}\nYour shop has been reset since you last checked, please do /acshop again to see what you got!",color = getColor('botColor'))
+            em = discord.Embed(title = f"CCshop - {member.name}\nYour shop has been reset since you last checked, please do /ccshop again to see what you got!",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -2330,7 +2373,7 @@ class ACSHOP(commands.Cog):
             except:
                 pass
             resetShop()
-            em = discord.Embed(title = f"ACcharactershop - {member.name}\nYour shop has been reset since you last checked, please do /acshop again to see what you got!",color = getColor('botColor'))
+            em = discord.Embed(title = f"CCshop - {member.name}\nYour shop has been reset since you last checked, please do /ccshop again to see what you got!",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -2364,7 +2407,7 @@ class ACSHOP(commands.Cog):
                         charShoplist.append(x["name"])
                     except:
                         charShoplist.append(x["number"])
-            em = discord.Embed(title = f"ACcharactershop - {member.name}\nYour shop has been reset since you last checked, please do /acshop again to see what you got!",color = getColor('botColor'))
+            em = discord.Embed(title = f"CCcharactershop - {member.name}\nYour shop has been reset since you last checked, please do /ccshop again to see what you got!",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -2400,9 +2443,11 @@ class ACSHOP(commands.Cog):
         # loadingprice = botStats['lsbaseprice']
 
 
-        usermoney = user["money"]
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
+        # print(usermoney)
 
-        homeem = discord.Embed(title = f"ACraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
+        homeem = discord.Embed(title = f"CCraffle Character Shop - {member.name}",description = f"\n**Time Until Next Reset: {23 - currenthour} hours {60-currentminute} minutes**\nTo reset your shop manually **/acresetshop**\n\n**User Balance: ${usermoney}**", color = discord.Color.teal())
         homeem.set_thumbnail(url = member.avatar)
         homeem.set_image(url="https://media1.tenor.com/images/52950888781d0f27f61df71442f176cd/tenor.gif?itemid=5078001")
         
@@ -2446,13 +2491,13 @@ class ACSHOP(commands.Cog):
         #     boughtloading = userProf["boughtloading"]
         
         chl = self.bot.get_channel(config.SHOP_LOG_ID)
-        await chl.send(f"**/acshop** - User: **{member.name}** - Server: **{guild}**")
+        await chl.send(f"**/ccshop** - User: **{member.name}** - Server: **{guild}**")
             
         view=homeComp(interaction.user)
         await interaction.response.send_message(embed=homeem,view=view)
         view.message = await interaction.original_response()
         
-    @app_commands.command(name='acresetshop', description='Reset your /acshop by choose one of the options')
+    @app_commands.command(name='ccresetshop', description='Reset your /ccshop by choose one of the options')
     @app_commands.choices(reset=[
         discord.app_commands.Choice(name='Uncommon',value=1),
         discord.app_commands.Choice(name='Rare',value=2),
@@ -2462,10 +2507,11 @@ class ACSHOP(commands.Cog):
         discord.app_commands.Choice(name='Loading Screen',value=6),
         discord.app_commands.Choice(name='All',value = 7)
     ])
-    async def acresetshop(self, interaction: discord.Interaction, reset: discord.app_commands.Choice[int]):
+    async def ccresetshop(self, interaction: discord.Interaction, reset: discord.app_commands.Choice[int]):
         member = interaction.user
-        user = shopDB.find_one({'id':member.id})
-        usermoney = user['money']
+        # user = shopDB.find_one({'id':member.id})
+        userMon = moneyDB.find_one({"id":member.id})
+        usermoney = userMon["money"]
         hasEnough = False
         if reset.value == 1:
             if (usermoney >= round(uncommonprice/2)):
@@ -2540,4 +2586,4 @@ class ACSHOP(commands.Cog):
         
         
 async def setup(bot):
-    await bot.add_cog(ACSHOP(bot))
+    await bot.add_cog(CCSHOP(bot))

@@ -8,18 +8,17 @@ import random
 
 cluster = pymongo.MongoClient(config.MONGOTOKEN)
 
-charDB = cluster["acrafflebot"]["characters"]
-userDB = cluster["acrafflebot"]["users"]
 botstatsDB = cluster["acrafflebot"]["botstats"]
-showDB = cluster["acrafflebot"]["shows"]
-loadingScreenDB = cluster["acrafflebot"]["loadingscreens"]
-shopDB = cluster["acrafflebot"]["usershops"]
+
+charDB = cluster["acraffleCartoon"]["characters"]
+userDB = cluster["acraffleCartoon"]["users"]
+shopDB = cluster["acraffleCartoon"]["usershops"]
+showDB = cluster["acraffleCartoon"]["shows"]
+presDB = cluster["acraffleCartoon"]["userprestige"]
+loadingScreenDB = cluster["acraffleCartoon"]["loadingscreens"]
 voteDB = cluster["acrafflebot"]["uservotes"]
-blockDB = cluster["acrafflebot"]["blocks"]
-presDB = cluster["acrafflebot"]["userprestige"]
-achDB = cluster["acrafflebot"]["achievements"]
-sznDB = cluster["acrafflebot"]["seasons"]
-sznWinDB = cluster["acrafflebot"]["sznwinners"] 
+moneyDB = cluster["acrafflebot"]["usershops"]
+
 #intents = discord.Intents.default()
 #bot = commands.Bot(command_prefix= '!', intents=intents, application_id = config.APP_ID)
 #tree = app_commands.CommandTree(bot)
@@ -70,7 +69,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -88,7 +87,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -104,7 +103,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -120,7 +119,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[3])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -136,7 +135,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[4])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -152,7 +151,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[5])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -168,7 +167,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[6])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -184,7 +183,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[7])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -200,7 +199,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[8])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -216,7 +215,7 @@ class TenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[9])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -251,7 +250,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -269,7 +268,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -285,7 +284,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -301,7 +300,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[3])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -317,7 +316,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[4])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -333,7 +332,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[5])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -349,7 +348,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[6])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -365,7 +364,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[7])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -381,7 +380,7 @@ class NineLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[8])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -415,7 +414,7 @@ class EightLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -433,7 +432,7 @@ class EightLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -449,7 +448,7 @@ class EightLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -465,7 +464,7 @@ class EightLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[3])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -481,7 +480,7 @@ class EightLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[4])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -497,7 +496,7 @@ class EightLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[5])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -513,7 +512,7 @@ class EightLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[6])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -529,7 +528,7 @@ class EightLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[7])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -562,7 +561,7 @@ class SevenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -580,7 +579,7 @@ class SevenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -596,7 +595,7 @@ class SevenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -612,7 +611,7 @@ class SevenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[3])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -628,7 +627,7 @@ class SevenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[4])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -644,7 +643,7 @@ class SevenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[5])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -660,7 +659,7 @@ class SevenLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[6])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -692,7 +691,7 @@ class SixLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -710,7 +709,7 @@ class SixLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -726,7 +725,7 @@ class SixLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -742,7 +741,7 @@ class SixLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[3])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -758,7 +757,7 @@ class SixLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[4])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -774,7 +773,7 @@ class SixLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[5])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -805,7 +804,7 @@ class FiveLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -823,7 +822,7 @@ class FiveLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -839,7 +838,7 @@ class FiveLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -855,7 +854,7 @@ class FiveLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[3])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -871,7 +870,7 @@ class FiveLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[4])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -901,7 +900,7 @@ class FourLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -919,7 +918,7 @@ class FourLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -935,7 +934,7 @@ class FourLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -951,7 +950,7 @@ class FourLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[3])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -980,7 +979,7 @@ class ThreeLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -998,7 +997,7 @@ class ThreeLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -1014,7 +1013,7 @@ class ThreeLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[2])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -1042,7 +1041,7 @@ class TwoLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[0])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -1060,7 +1059,7 @@ class TwoLoading(discord.ui.Select):
                 screenlist.append(int(screens['number']))
             
             findFirstLoading = loadingScreenDB.find_one({'number':int(screenlist[1])})
-            findFirstLoadingEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
+            findFirstLoadingEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Press Select** to Only use this loading screen or **Press Random** to use all of them!",color = getColor('botColor'))
             findFirstLoadingEm.set_image(url=findFirstLoading["gif"])
             findFirstLoadingEm.set_thumbnail(url = member.avatar)
             
@@ -1164,13 +1163,9 @@ class Buttons(discord.ui.View):
 
         
         userDB.update_one({"id":member.id}, {"$set":{"lstype":'Select'}})
-        selectEm = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Loading Screen Selected**",color = discord.Color.teal())
+        selectEm = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Loading Screen Selected**",color = discord.Color.teal())
         selectEm.set_thumbnail(url=member.avatar)
         selectEm.set_image(url=findLSnew['gif'])
-        
-        # chl = self.bot.get_channel(config.LOADINGSCREEN_LOG_ID)
-        # await chl.send(f"**/acloadingscreen** - User: **{interaction.user.name}** - Server: **{interaction.guild}** - **Select** - Loading Screen: **{findLSnew['name']}**")
-       
 
         view = settoSel(interaction.user)
         await interaction.response.edit_message(embed=selectEm,view=view)
@@ -1179,7 +1174,7 @@ class Buttons(discord.ui.View):
     @discord.ui.button(label="Random", style=discord.ButtonStyle.green)
     async def random(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
-        newem = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"You will now get a **random** Loading Screen from your collection!",color = discord.Color.teal())
+        newem = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"You will now get a **random** Loading Screen from your collection!",color = discord.Color.teal())
         newem.set_thumbnail(url=member.avatar)
         newem.set_image(url=self.currentLs)
 
@@ -1249,7 +1244,7 @@ class ButtonsDis(discord.ui.View):
     @discord.ui.button(label="Random", style=discord.ButtonStyle.green)
     async def random(self, interaction: discord.Interaction, button: discord.ui.Button):
         member = interaction.user
-        newem = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"You will now get a **random** Loading Screen from your collection!",color = discord.Color.teal())
+        newem = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"You will now get a **random** Loading Screen from your collection!",color = discord.Color.teal())
         newem.set_thumbnail(url=member.avatar)
         
         newem.set_image(url=self.currentLs)
@@ -1340,21 +1335,21 @@ class settoSel(discord.ui.View):
         await interaction.response.send_message("You clicked me!")
               
         
-class ACLS(commands.Cog):
+class CCLS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @commands.Cog.listener()
     async def on_ready(self):
-        print("ACLS Cog loaded!")
+        print("CCLS Cog loaded!")
         
         
-    @app_commands.command(name='acloadingscreen', description='View all of your owned loading screens (Max 10)')
-    async def acloadingscreen(self,interaction: discord.Interaction):
+    @app_commands.command(name='ccloadingscreen', description='View all of your owned loading screens (Max 10)')
+    async def ccloadingscreen(self,interaction: discord.Interaction):
         member = interaction.user
         botstat = botstatsDB.find_one({'id':573})
         if botstat['botOffline']==True :
-            em = discord.Embed(title = f"ACloadingscreen - {member.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = getColor('botColor'))
+            em = discord.Embed(title = f"CCloadingscreen - {member.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = getColor('botColor'))
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             return
@@ -1379,7 +1374,7 @@ class ACLS(commands.Cog):
                 currentLS = findLS['gif']
                 userProfile = userDB.find_one({'id':member.id})
             except:
-                em = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"You don't have any unlocked Loading Screens!\nYou can buy loading screens in the shop (/acshop) for ${botstat['lsbaseprice']}",color = discord.Color.teal())
+                em = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"You don't have any unlocked Loading Screens!\nYou can buy loading screens in the shop (/acshop) for ${botstat['lsbaseprice']}",color = discord.Color.teal())
                 em.set_thumbnail(url=member.avatar)
                 await interaction.response.send_message(embed=em)
                 return
@@ -1394,20 +1389,20 @@ class ACLS(commands.Cog):
 
 
         if amntScreens==0:
-            em = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"You don't have any unlocked Loading Screens!\nYou can buy loading screens in the shop (/acshop) for ${botstat['lsbaseprice']}",color = discord.Color.teal())
+            em = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"You don't have any unlocked Loading Screens!\nYou can buy loading screens in the shop (/acshop) for ${botstat['lsbaseprice']}",color = discord.Color.teal())
             em.set_thumbnail(url=member.avatar)
             await interaction.response.send_message(embed=em)
             return
 
         elif amntScreens == 1:
-            em = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Current Loading Screen**",color = discord.Color.teal())
+            em = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Current Loading Screen**",color = discord.Color.teal())
             em.set_thumbnail(url=member.avatar)
             em.set_image(url=currentLS)
             
             await interaction.response.send_message(embed=em)
             return
         else:
-            em = discord.Embed(title = f"ACloadingscreen - {member.name}",description=f"**Current Loading Screen**\n**Type: {userProfile['lstype']}**",color = discord.Color.teal())
+            em = discord.Embed(title = f"CCloadingscreen - {member.name}",description=f"**Current Loading Screen**\n**Type: {userProfile['lstype']}**",color = discord.Color.teal())
             em.set_thumbnail(url=member.avatar)
             em.set_image(url=currentLS)
             
@@ -1419,7 +1414,7 @@ class ACLS(commands.Cog):
             
         
 async def setup(bot):
-    await bot.add_cog(ACLS(bot))
+    await bot.add_cog(CCLS(bot))
 
 
 

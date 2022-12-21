@@ -92,7 +92,7 @@ class ACPRESTIGE(commands.Cog):
 
 
         if showFound == None:
-            em = discord.Embed(title = f"ACprestige - {member.name}" ,description=f"Show not found. To see a list of shows do **!acshows**",color = discord.Color.teal())
+            em = discord.Embed(title = f"ACprestige - {member.name}" ,description=f"Show not found. To see a list of shows do **/acshows**",color = discord.Color.teal())
             em.set_thumbnail(url=member.avatar)
             await interaction.response.send_message(embed=em)
             return

@@ -56,18 +56,16 @@ class Buttons(discord.ui.View):
         
 cluster = pymongo.MongoClient(config.MONGOTOKEN)
 
-charDB = cluster["acrafflebot"]["characters"]
-userDB = cluster["acrafflebot"]["users"]
 botstatsDB = cluster["acrafflebot"]["botstats"]
-showDB = cluster["acrafflebot"]["shows"]
-loadingScreenDB = cluster["acrafflebot"]["loadingscreens"]
-shopDB = cluster["acrafflebot"]["usershops"]
+
+charDB = cluster["acraffleCartoon"]["characters"]
+userDB = cluster["acraffleCartoon"]["users"]
+shopDB = cluster["acraffleCartoon"]["usershops"]
+showDB = cluster["acraffleCartoon"]["shows"]
+presDB = cluster["acraffleCartoon"]["userprestige"]
+loadingScreenDB = cluster["acraffleCartoon"]["loadingscreens"]
 voteDB = cluster["acrafflebot"]["uservotes"]
-blockDB = cluster["acrafflebot"]["blocks"]
-presDB = cluster["acrafflebot"]["userprestige"]
-achDB = cluster["acrafflebot"]["achievements"]
-sznDB = cluster["acrafflebot"]["seasons"]
-sznWinDB = cluster["acrafflebot"]["sznwinners"] 
+moneyDB = cluster["acrafflebot"]["usershops"]
 
 def updateHyperLeg(member):
     user = userDB.find_one({"id":member.id})
@@ -114,11 +112,14 @@ def createPages(member):
     #print(newShowsList)
     
     startNum = 0
-    stopNum = 15
+    if showDB.estimated_document_count() < 15:
+        stopNum = showDB.estimated_document_count()
+    else:
+        stopNum = 15
 
     for pages in range(pagesNeeded):
         embed = discord.Embed (
-        title = f"**ACshows - User: {member.name}\nTo see the characters in a show do /acbs show\nExample: /acbs aot**",
+        title = f"**CCShows - User: {member.name}\nTo see the characters in a show do /ccbs show\nExample: /ccbs atla**",
         description = f'{joinVar.join(newShowsList[i] for i in range(startNum,stopNum))}',
         colour = getColor('botColor')
         )
@@ -131,23 +132,23 @@ def createPages(member):
             stopNum = numshows
     return acshowsPages
        
-class ACSHOWS(commands.Cog):
+class CCSHOWS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @commands.Cog.listener()
     async def on_ready(self):
-        print("ACvote Cog loaded!")
+        print("CCShows Cog loaded!")
         
     
-    @app_commands.command(name="acshows",description="Shows a list of all the shows included in ACRaffle")
-    async def acshows(self,interaction: discord.Interaction):
+    @app_commands.command(name="ccshows",description="Shows a list of all the shows included in ACRaffle")
+    async def ccshows(self,interaction: discord.Interaction):
         member = interaction.user
         botStats = botstatsDB.find_one({"id":573})
        
         if botStats['botOffline']==True:
             em = discord.Embed(title = f"ACsetfavorite - {member.name}\nThe bot is rebooting...\nTry again in a few minutes.",color = getColor('botColor'))
-            em.set_thumbnail(url = member.avatar)
+            em.set_thumbnail(url = member.avatar_url)
             await interaction.response.send_message(embed=em) 
             return
     
@@ -157,8 +158,8 @@ class ACSHOWS(commands.Cog):
         await interaction.response.send_message(embed=acshowsPages[0],view=view) 
         view.message = await interaction.original_response()
 
-    @app_commands.command(name="achyperlegendary",description="Claim the Hyper Legendary once you collect all the chacracters in a show!")
-    async def achyperlegendary(self,interaction: discord.Interaction, show: str):   
+    @app_commands.command(name="cchyperlegendary",description="Claim the Hyper Legendary once you collect all the chacracters in a show!")
+    async def cchyperlegendary(self,interaction: discord.Interaction, show: str):   
         member = interaction.user
         guild = interaction.guild
         
@@ -176,7 +177,7 @@ class ACSHOWS(commands.Cog):
                 inshowlist = True
                 break
         if inshowlist==False:
-            em = discord.Embed(title = "AChyperlegendary",description=f"Show: **{show}** not found.\nTo see all shows do **/acshows**",color = discord.Color.teal())
+            em = discord.Embed(title = "CChyperlegendary",description=f"Show: **{show}** not found.\nTo see all shows do **/acshows**",color = discord.Color.teal())
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em) 
         
@@ -202,21 +203,21 @@ class ACSHOWS(commands.Cog):
             charhypleggif = charhypleg["gif"]
             userDB.update_one({"id":member.id}, {"$addToSet":{"characters":{"name":charhyplegname,"show":charhyplegshow,"rarity":charhyplegrarity}}})
 
-            em = discord.Embed(title = f"AChyperlegendary",description= f"**{member.name} claimed a Hyper Legendary!**\n**Name: {charhyplegname.capitalize()}**\nShow: {showfound['title']}\nRarity: {charhyplegrarity.capitalize()}",color = getColor("hyperlegendary"))
+            em = discord.Embed(title = f"CChyperlegendary",description= f"**{member.name} claimed a Hyper Legendary!**\n**Name: {charhyplegname.capitalize()}**\nShow: {showfound['title']}\nRarity: {charhyplegrarity.capitalize()}",color = getColor("hyperlegendary"))
             em.set_thumbnail(url = member.avatar)
             em.set_image(url=charhypleggif)
             await interaction.response.send_message(embed=em)
-            #await send_logs_acraffle(member, guild, "achyperlegendary",charhyplegname)
+            #await send_logs_acraffle(member, guild, "CChyperlegendary",charhyplegname)
             updateHyperLeg(member)
             
 
         elif hashypleg == True:
-            em = discord.Embed(title = "AChyperlegendary",description=f"{member.name} already claimed the Hyper Legendary for **{showfound['title']}**.",color = getColor("hyperlegendary"))
+            em = discord.Embed(title = "CChyperlegendary",description=f"{member.name} already claimed the Hyper Legendary for **{showfound['title']}**.",color = getColor("hyperlegendary"))
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             
         else:
-            em = discord.Embed(title = "AChyperlegendary",description=f"{member.name} doesn't have all available characters unlocked for **{showfound['title']}**\nCheck with **/acbs {showfound['abv']}**",color = discord.Color.teal())
+            em = discord.Embed(title = "CChyperlegendary",description=f"{member.name} doesn't have all available characters unlocked for **{showfound['title']}**\nCheck with **/ccbs {showfound['abv']}**",color = discord.Color.teal())
             em.set_thumbnail(url = member.avatar)
             await interaction.response.send_message(embed=em)
             
@@ -224,4 +225,4 @@ class ACSHOWS(commands.Cog):
         
         
 async def setup(bot):
-    await bot.add_cog(ACSHOWS(bot))
+    await bot.add_cog(CCSHOWS(bot))

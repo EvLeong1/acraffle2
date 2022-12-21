@@ -135,7 +135,7 @@ class ACBLOCK(commands.Cog):
                 pass
 
         if showFound == None:
-            em = discord.Embed(title = f"ACblock - {member.name.capitalize()}",description = f"Show '{show}' not found, please you the abbreviations found in *!acshows*\nSyntax: **!acblock *show***",color = discord.Color.teal())
+            em = discord.Embed(title = f"ACblock - {member.name.capitalize()}",description = f"Show '{show}' not found, please you the abbreviations found in */acshows*\nSyntax: **/acblock *show***",color = discord.Color.teal())
             em.set_thumbnail(url=member.avatar)
             await interaction.response.send_message(embed=em)
             return
