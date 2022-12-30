@@ -1,5 +1,5 @@
 # ACRaffle - Automated Discord Bot
-ACRaffle is an automated Discord Bot created utilizing using the Discord API which is also connected to MongoDB to store user data <br> 
+**ACRaffle is an automated Discord Bot created utilizing using the Discord API which is also connected to MongoDB to store user data**<br><br> 
 Invite the Bot to a Discord Server here: [Invite](https://discord.com/api/oauth2/authorize?client_id=864733251166797835&permissions=2147772416&scope=bot%20applications.commands)<br><br>
 
 ### Goals for the Project <br>
